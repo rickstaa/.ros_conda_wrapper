@@ -1,5 +1,6 @@
 # ros_conda_wrapper
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3bac6de9531d40e699010223fa5a0ddf)](https://app.codacy.com/app/rickstaa/ros_conda_wrapper?utm_source=github.com&utm_medium=referral&utm_content=rickstaa/ros_conda_wrapper&utm_campaign=Badge_Grade_Dashboard)
 [![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green)](https://github.com/rickstaa/ros_conda_wrapper/pulse)
 [![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)](contributing.md)
 [![Conda version](https://img.shields.io/badge/conda-%3D%3E4.4-blue)](https://conda.io/en/latest/)
