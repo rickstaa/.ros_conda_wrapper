@@ -32,8 +32,8 @@ In order for ROS to work inside a conda environment you need a number of additio
 
 ## Contributing
 
-Contributions to this repository are welcome. See the [contribution guidelines](https://github.com/rickstaa/ros_conda_warpper/blob/master/contributing.md) for more information.
+Contributions to this repository are welcome. See the [contribution guidelines](https://github.com/rickstaa/ros_conda_wrapper/blob/master/contributing.md) for more information.
 
 ## License
 
-[MIT](https://github.com/rickstaa/ros_conda_warpper/blob/master/LISENCE)
+[MIT](https://github.com/rickstaa/ros_conda_wrapper/blob/master/LICENSE)
