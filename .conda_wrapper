@@ -20,8 +20,8 @@ ROS_PIP_DEPS=("rospkg" "catkin_pkg" "empy" "pyyaml")
 function _ros_conda_init {
 
 	# Check if pip is installed in the environment
-	if [[ $(echo $(conda list -n $1 | grep pip | awk '{ print $1}')) != *"pip"*  ]]; then
-		conda install -y pip
+	if [[ $(echo $(\conda list -n $1 | grep pip | awk '{ print $1}')) != *"pip"*  ]]; then
+		\conda install -y pip
 	fi
 
 	# Get pip and conda install locations
@@ -36,8 +36,8 @@ function _ros_conda_init {
 	# Check if ROS conda python dependencies are installed
 	for i in "${ROS_CONDA_DEPS[@]}"
 	do
-		if [[ $(echo $(conda list -n $1 | grep -w "opencv" | grep -v '-' | awk '{ print $1 }')) != $i ]]; then
-			conda install -y $i
+		if [[ $(echo $(\conda list -n $1 | grep -w "opencv" | grep -v '-' | awk '{ print $1 }')) != $i ]]; then
+			\conda install -y $i
 		else
 			echo "Conda package requirement already statisfied: $i"
 		fi
@@ -108,8 +108,8 @@ function _ros_conda_deinit {
 	# Check if ROS conda python dependencies are installed
 	for i in "${ROS_CONDA_DEPS[@]}"
 	do
-		if [[ $(echo $(conda list -n $1 | grep -w "opencv" | grep -v '-' | awk '{ print $1 }')) == $i ]]; then
-			conda remove -y $i
+		if [[ $(echo $(\conda list -n $1 | grep -w "opencv" | grep -v '-' | awk '{ print $1 }')) == $i ]]; then
+			\conda remove -y $i
 		else
 			echo "Conda package requirement already removed: $i"
 		fi
@@ -184,7 +184,7 @@ function _conda_wrapper {
 		export PYTHONPATH="$_conda_site_packages_path:$PYTHONPATH"
 
 		# Make sure the activation conda command is executed
-		conda $@
+		\conda $@
 	elif [[ $1 == "deactivate" ]]; then # Warp conda deactivate command
 
 		# Remove conda site-packages folder from the PYTHONPATH
@@ -192,7 +192,7 @@ function _conda_wrapper {
 		unset _OLD_PYTHONPATH
 
 		# Make sure the deactivation conda command is executed
-		conda $@
+		\conda $@
 	elif [[ $1 == "rosinit" && $2 == "" ]]; then # Initialize BASE conda environment to work with ROS
 
 		# Ask user if he/she wants to continue with the initialization
@@ -274,12 +274,10 @@ function _conda_wrapper {
 			esac
 		done
 	else # Make sure other conda commands are executed
-		conda $@
+		\conda $@
 	fi
 }
 
-## Overload conda alias
-unalias conda 2>/dev/null # Remove existing aliases
+## Create conda alias to wrap conda executable
 alias conda='_conda_wrapper $@'
-# conda rosinit test
 # <<< Conda wrapper function <<<
