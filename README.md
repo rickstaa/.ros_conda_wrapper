@@ -2,7 +2,6 @@
 
 [![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green)](https://github.com/rickstaa/ros_conda_wrapper/pulse)
 [![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)](https://github.com/rickstaa/ros_conda_wrapper/blob/master/contributing.md)
-[![Conda version](https://img.shields.io/badge/contributions-welcome-orange.svg)](https://github.com/rickstaa/ros_conda_wrapper/blob/master/contributing.md)
 [![Conda version](https://img.shields.io/badge/conda-%3D%3E4.4-blue)](https://conda.io/en/latest/)
 [![Python 3](https://img.shields.io/badge/python%203-3.7%20%7C%203.6%20%7C%203.5-green.svg)](https://www.python.org/)
 [![Python 2](https://img.shields.io/badge/python%202-2.7%20%7C%202.6%20%7C%202.5-green.svg)](https://www.python.org/)
