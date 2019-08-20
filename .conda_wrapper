@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 ## -- Conda Wrapper --
 # This wrapper was added to solve for the conflicts caused by sourcing a ROS setup.bash file inside a
 # conda enviroment.
@@ -218,7 +219,7 @@ function _conda_wrapper {
 		# Ask user if he/she wants to continue with the initialization
 		while true
 		do
-			read -r -p "You are about to initialize your "$2" conda environment to work with ros. Are you sure? [y/N] " response
+			read -r -p "You are about to initialize your \"$2\" conda environment to work with ros. Are you sure? [y/N] " response
 			case "$response" in
 			    [yY][eE][sS]|[yY])
 			        _ros_conda_init $2
@@ -258,7 +259,7 @@ function _conda_wrapper {
 		# Ask user if he/she wants to continue with the initialization
 		while true
 		do
-			read -r -p "You are about to deinitialize your "$2" conda environment to work with ros. Are you sure? [y/N] " response
+			read -r -p "You are about to deinitialize your \"$2\" conda environment to work with ros. Are you sure? [y/N] " response
 			case "$response" in
 			    [yY][eE][sS]|[yY])
 			        _ros_conda_deinit $2

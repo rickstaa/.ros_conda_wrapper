@@ -7,7 +7,15 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 ## Find projects to work on
 
-Projects that are open for contributions can be found on the [issue tab](https://github.com/rickstaa/ros_conda_wrapper) and will be labelled with the `help wanted` tag. Projects with the `beginner` label are ideal for beginning programmers. If you find a project that spikes your interest, leave a comment. We will then assign you to this project. After you did one project, you will be added as a contributor after which you can attach yourself to projects to work on.
+Projects that are open for contributions can be found on the [issue tab](https://github.com/rickstaa/ros_conda_wrapper) and will be labelled with the `help wanted` tag. Projects with the `beginner` label are ideal for beginning programmers. If you find a project that spikes your interest, leave a comment. We will then assign you to this project. After you did one project, you will be added as a contributor after which you can attach yourself to projects to work on. You can also submit a feature you would like to work on yourself by by opening [an issue](https://github.com/rickstaa/ros_conda_wrapper/issues/new).
+
+## Forking process
+
+1.  Fork the main [repository](https://github.com/rickstaa/ros_conda_wrapper)
+2.  Create your feature branch `git checkout -b feature/fooBar`
+3.  Commit your changes `git commit -am 'Add some fooBar'`
+4.  Push to the branch `git push origin feature/fooBar`
+5.  Create a new Pull Request
 
 ## Pull Request Process
 
@@ -38,7 +46,8 @@ The auto-changelog tool by [@CookPete](https://github.com/CookPete/) is a small 
 4.  Commit any stages changes.
 5.  Bump the version using the bumpversion tool.
 6.  Run the `auto-changelog` command.
-7.  You can now push your changes to github and submit a pull request.
+7.  Commit the changes using \`git commit -m "Updated CHANGELOG.md".
+8.  You can now push your changes to github and submit a pull request.
 
 ## Code of Conduct
 
