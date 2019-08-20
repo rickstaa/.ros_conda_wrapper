@@ -7,7 +7,7 @@ Please note we have a code of conduct, please follow it in all your interactions
 
 ## Find projects to work on
 
-Projects that are open for contributions can be found on the [issue tab](https://github.com/rickstaa/ros_conda_wrapper) and will be labelled with the `help wanted` tag. Projects with the `beginner` label are ideal for beginning programmers. If you find a project that spikes your interest, leave a comment. We will then assign you to this project. After you did one project, you will be added as a contributor after which you can attach yourself to projects to work on.
+Projects that are open for contributions can be found on the [issue tab](https://github.com/rickstaa/ros_conda_wrapper) and will be labelled with the `help wanted` tag. Projects with the `beginner` label are ideal for beginning programmers. If you find a project that spikes your interest, leave a comment. We will then assign you to this project. After you did one project, you will be added as a contributor after which you can attach yourself to projects to work on. You can also submit a feature you would like to work on yourself by by opening [an issue](https://github.com/rickstaa/ros_conda_wrapper/issues/new).
 
 ## Pull Request Process
 
