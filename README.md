@@ -1,7 +1,7 @@
 # ros_conda_wrapper
 
 [![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green)](https://github.com/rickstaa/ros_conda_wrapper/pulse)
-[![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)](https://github.com/rickstaa/ros_conda_wrapper/blob/master/contributing.md)
+[![Contributions](https://img.shields.io/badge/contributions-welcome-orange.svg)](contributing.md)
 [![Conda version](https://img.shields.io/badge/conda-%3D%3E4.4-blue)](https://conda.io/en/latest/)
 [![Python 3](https://img.shields.io/badge/python%203-3.7%20%7C%203.6%20%7C%203.5-green.svg)](https://www.python.org/)
 [![Python 2](https://img.shields.io/badge/python%202-2.7%20%7C%202.6%20%7C%202.5-green.svg)](https://www.python.org/)
@@ -39,8 +39,8 @@ The `.conda_wrapper` script creates an alias which wraps the original `activate`
 
 ## Contributing
 
-Contributions to this repository are welcome. See the [contribution guidelines](https://github.com/rickstaa/ros_conda_wrapper/blob/master/contributing.md) for more information.
+Contributions to this repository are welcome. See the [contribution guidelines](contributing.md) for more information.
 
 ## License
 
-[MIT](https://github.com/rickstaa/ros_conda_wrapper/blob/master/LICENSE)
+[MIT](LICENSE)
