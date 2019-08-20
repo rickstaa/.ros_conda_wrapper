@@ -28,8 +28,8 @@ fi
 
 All of the original `conda` commands work as expected. Additionally to extra commands have been added:
 
-- `conda rosinit`: Initiates a ros_conda environment.
-- `conda rosdeinit`: Removes the ros_conda initiation.
+-   `conda rosinit`: Initiates a ros_conda environment.
+-   `conda rosdeinit`: Removes the ros_conda initiation.
 
 NOTE: The `conda rosinit` command doesnt create the enviroment itself it only performs some actions such that ros will work inside the conda environment.
 
