@@ -12,8 +12,7 @@ This wrapper solves some problems people have while trying to use ROS Kinetic/Me
 
 :warning: As ROS Kinetic/Melodic does not yet fully support python3 it does not fully work inside a python 3 enviroment see issue [#4](https://github.com/rickstaa/ros_conda_wrapper/issues/4) and [#5](https://github.com/rickstaa/ros_conda_wrapper/issues/5). :warning:
 
-
-:warning: This wrapper is not working anymore see issue #4 and #5. Currently you can therefore only use it to easily switch between ROS and anaconda. :warning:
+:warning: As ROS Kinetic/Melodic does not yet fully support python3 it does not fully work inside a python 3 enviroment see issue [#4](https://github.com/rickstaa/ros_conda_wrapper/issues/4) and [#5](https://github.com/rickstaa/ros_conda_wrapper/issues/5). :warning:
 
 ## How to setup
 
