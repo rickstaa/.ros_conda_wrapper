@@ -13,9 +13,11 @@ This wrapper solves some problems people have while trying to use ROS Kinetic/Me
 ## :warning: Python 3 compatibility warning:warning:
 
 ### ROS melodic
+
 As ROS Melodic does not yet fully support python3 it does not fully work inside a python 3 environment see issue [#4](https://github.com/rickstaa/ros_conda_wrapper/issues/4) and [#5](https://github.com/rickstaa/ros_conda_wrapper/issues/5). As ROS Melodic is currently being ported to python 3 ([see ROS REP 3](https://www.ros.org/reps/rep-0003.html)) theses issue will likely be solved in the coming months.
 
 ### ROS Kinetic
+
 ROS kinetic does not support python 3. Further there are no plans to port the ROS kinetic python 2 packages too python 3 ([see ROS REP 3](https://www.ros.org/reps/rep-0003.html)).
 
 ## How to setup
@@ -46,7 +48,8 @@ All of the original `conda` commands work as expected. Additionally, to extra co
 The `.conda_wrapper` script creates an alias which wraps the original `activate` and `deactivate` conda executable arguments. Following these wrappers fix a conflict in the [PYTHONPATH between ROS and CONDA](https://answers.ros.org/question/256886/conflict-anaconda-vs-ros-catking_pkg-not-found/). Additionally the `conda rosinit <NAME_OF_YOUR_ENVIRONMENT>` command can be used to setup a enviroment in such a way that ROS works inside the environment. This is done by installing some additional python packages ros needs.
 
 ## Known issues
--  The wrapper currently only works with `catkin_make` and not `catkin build` (see [this issue](https://github.com/rickstaa/ros_conda_wrapper/issues/4)).
+
+-   The wrapper currently only works with `catkin_make` and not `catkin build` (see [this issue](https://github.com/rickstaa/ros_conda_wrapper/issues/4)).
 
 ## Contributing
 
@@ -54,10 +57,10 @@ Contributions to this repository are welcome. See the [contribution guidelines](
 
 ### Roadmap
 
-- [issue #4](https://github.com/rickstaa/ros_conda_wrapper/issues/4)
-- [issue #5](https://github.com/rickstaa/ros_conda_wrapper/issues/5)
-- [feature #1](https://github.com/rickstaa/ros_conda_wrapper/issues/1)
-- [feature #3](https://github.com/rickstaa/ros_conda_wrapper/issues/3)
+-   [issue #4](https://github.com/rickstaa/ros_conda_wrapper/issues/4)
+-   [issue #5](https://github.com/rickstaa/ros_conda_wrapper/issues/5)
+-   [feature #1](https://github.com/rickstaa/ros_conda_wrapper/issues/1)
+-   [feature #3](https://github.com/rickstaa/ros_conda_wrapper/issues/3)
 
 ## License
 
