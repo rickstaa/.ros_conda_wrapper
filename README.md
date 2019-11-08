@@ -22,25 +22,33 @@ ROS kinetic does not support python 3. Further, there are no plans to port the R
 
 ## How to setup
 
+### Automatic installation
+
 1.  Clone the repository to your user home directory.
 
     ```bash
-    $ git clone https://github.com/rickstaa/.ros_conda_wrapper.git
+    git clone https://github.com/rickstaa/.ros_conda_wrapper.git
     ```
 
-2.  Create a symbolic link to the `.ros_conda_wrapper_rc` file:
+2.  Run the `install.sh` script to install the ROS conda wrapper.
+
+### Manual installation
+
+1.  Create a symbolic link to the `.ros_conda_wrapper_rc` file:
 
     ```bash
-    $ ln -s -f .bashrc_rep/.bashrc
+    ln -fs "$(pwd)/$WRAPPER_NAME" "$(echo $HOME)/$WRAPPER_NAME"
     ```
 
-3.  Run the `install.sh` script or manually add the following code at the end of your `.bashrc`.
+2.  Add the following code at the end of your `.bashrc`.
 
     ```bash
+    # >>> ros_conda_wrapper initialize >>>
     ## Source conda wrapper script
-    if [ -f "~/.conda_wrapper" ]; then
-     . "~/.conda_wrapper"
+    if [ -f "$HOME/.conda_wrapper" ]; then
+     . "$HOME/.conda_wrapper"
     fi
+    # <<< ros_conda_wrapper initialize <<<
     ```
 
 ## How to uninstall
