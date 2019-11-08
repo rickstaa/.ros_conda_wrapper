@@ -42,7 +42,7 @@ ROS kinetic does not support python 3. Further, there are no plans to port the R
 
 2.  Add the following code at the end of your `.bashrc`.
 
-    ```bash
+    ```sh
     # >>> ros_conda_wrapper initialize >>>
     ## Source conda wrapper script
     if [ -f "$HOME/.conda_wrapper" ]; then
@@ -53,7 +53,7 @@ ROS kinetic does not support python 3. Further, there are no plans to port the R
 
 ## How to uninstall
 
-Run the `uninstall.sh` script before removing the `.ros_conda_wrapper` repository.
+To uninstall the ros Conda warpper run the `uninstall.sh` script before removing the `.ros_conda_wrapper` repository.
 
 ## How to use
 
