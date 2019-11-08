@@ -24,10 +24,11 @@ ROS kinetic does not support python 3. Further, there are no plans to port the R
 
 ### Automatic installation
 
-1.  Clone the repository to your user home directory.
+1.  Clone the repository to your user home directory and cd into the `.ros_conda_wrapper` folder.
 
     ```bash
     git clone https://github.com/rickstaa/.ros_conda_wrapper.git
+    cd .ros_conda_wrapper
     ```
 
 2.  Run the `install.sh` script to install the ROS conda wrapper.
