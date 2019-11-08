@@ -14,23 +14,38 @@ This wrapper solves some problems people have while trying to use ROS Kinetic/Me
 
 ### ROS melodic
 
-As ROS Melodic does not yet fully support python3 it does not fully work inside a python 3 environment see issue [#4](https://github.com/rickstaa/ros_conda_wrapper/issues/4) and [#5](https://github.com/rickstaa/ros_conda_wrapper/issues/5). As ROS Melodic is currently being ported to python 3 ([see ROS REP 3](https://www.ros.org/reps/rep-0003.html)) theses issue will likely be solved in the coming months.
+As ROS Melodic does not yet fully support python3, it does not fully work inside a python 3 environment see issue [#4](https://github.com/rickstaa/ros_conda_wrapper/issues/4) and [#5](https://github.com/rickstaa/ros_conda_wrapper/issues/5). As ROS Melodic is currently being ported to python 3 ([see ROS REP 3](https://www.ros.org/reps/rep-0003.html)) theses issue will likely be solved in the coming months.
 
 ### ROS Kinetic
 
-ROS kinetic does not support python 3. Further there are no plans to port the ROS kinetic python 2 packages too python 3 ([see ROS REP 3](https://www.ros.org/reps/rep-0003.html)).
+ROS kinetic does not support python 3. Further, there are no plans to port the ROS kinetic python 2 packages too python 3 ([see ROS REP 3](https://www.ros.org/reps/rep-0003.html)).
 
 ## How to setup
 
-1.  Add the `.conda_wrapper` file to your user home directory.
-2.  Add the following code at the end of your `.bashrc`.
+1.  Clone the repository to your user home directory.
 
-```bash
-## Source conda wrapper script
-if [ -f "~/.conda_wrapper" ]; then
-    . "~/.conda_wrapper"
-fi
-```
+    ```bash
+    $ git clone https://github.com/rickstaa/.ros_conda_wrapper.git
+    ```
+
+2.  Create a symbolic link to the `.ros_conda_wrapper_rc` file:
+
+    ```bash
+    $ ln -s -f .bashrc_rep/.bashrc
+    ```
+
+3.  Run the `install.sh` script or manually add the following code at the end of your `.bashrc`.
+
+    ```bash
+    ## Source conda wrapper script
+    if [ -f "~/.conda_wrapper" ]; then
+     . "~/.conda_wrapper"
+    fi
+    ```
+
+## How to uninstall
+
+Run the `uninstall.sh` script before removing the `.ros_conda_wrapper` repository.
 
 ## How to use
 
@@ -45,7 +60,7 @@ All of the original `conda` commands work as expected. Additionally, to extra co
 
 ## How it works
 
-The `.conda_wrapper` script creates an alias which wraps the original `activate` and `deactivate` conda executable arguments. Following these wrappers fix a conflict in the [PYTHONPATH between ROS and CONDA](https://answers.ros.org/question/256886/conflict-anaconda-vs-ros-catking_pkg-not-found/). Additionally the `conda rosinit <NAME_OF_YOUR_ENVIRONMENT>` command can be used to setup a enviroment in such a way that ROS works inside the environment. This is done by installing some additional python packages ros needs.
+The `.conda_wrapper` script creates an alias which wraps the original `activate` and `deactivate` conda executable arguments. Following these wrappers fix a conflict in the [PYTHONPATH between ROS and CONDA](https://answers.ros.org/question/256886/conflict-anaconda-vs-ros-catking_pkg-not-found/). Additionally the `conda rosinit <NAME_OF_YOUR_ENVIRONMENT>` command can be used to setup an environment in such a way that ROS works inside the environment. This is done by installing some additional python packages ros needs.
 
 ## Known issues
 
