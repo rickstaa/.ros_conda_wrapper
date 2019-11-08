@@ -32,6 +32,7 @@ if [ -z "$exists" ]; then
 ## Source conda wrapper script
 if [ -f "$HOME/.ros_conda_wrapper_rc" ]; then
     . "$HOME/.ros_conda_wrapper_rc"
+    export ROS_CONDA_WRAPPER=True
 fi
 # <<< ros_conda_wrapper initialize <<<
 EOL

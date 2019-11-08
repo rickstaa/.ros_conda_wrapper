@@ -47,7 +47,8 @@ ROS kinetic does not support python 3. Further, there are no plans to port the R
     # >>> ros_conda_wrapper initialize >>>
     ## Source conda wrapper script
     if [ -f "$HOME/.conda_wrapper" ]; then
-     . "$HOME/.conda_wrapper"
+        . "$HOME/.conda_wrapper"
+        export ROS_CONDA_WRAPPER=True
     fi
     # <<< ros_conda_wrapper initialize <<<
     ```
