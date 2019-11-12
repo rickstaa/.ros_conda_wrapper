@@ -18,7 +18,7 @@ ORANGE='\033[0;33m'
 NC='\033[0m' # No Color
 
 # Check conda version
-if ! type "\conda" >/dev/null 2>&1; then
+if ! type "conda" >/dev/null 2>&1; then
     echo -e "${ORANGE}WARNING:${NC} The ROS Conda wrapper could not be set since anaconda is not installed." 1>&2
 
     # Set conda wrapper error variable
