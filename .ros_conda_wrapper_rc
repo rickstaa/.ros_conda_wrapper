@@ -39,7 +39,7 @@ ROS_CONDA_DEPS=("opencv")
 ROS_PIP_DEPS=("rospkg" "catkin_pkg" "empy" "pyyaml")
 
 # ROS Conda wrapper usage string
-VERSION=0.0.3
+VERSION=0.0.4
 
 ####################################
 ## Ros conda warpper usage func ####
