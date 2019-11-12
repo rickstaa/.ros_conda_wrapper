@@ -8,14 +8,14 @@ exists=$(sed -n "/$start_str/,/$end_str/p" ~/.bashrc) # Check if patern is alrea
 # Create symbolic link to the .ros_conda_wrapper_rc file
 WRAPPER_NAME=".ros_conda_wrapper_rc"
 WRAPPER_LINK="$(echo $HOME)/$WRAPPER_NAME"
-if [ -L ${WRAPPER_LINK} ] ; then
-    if [ -e ${WRAPPER_LINK} ] ; then
+if [ -L ${WRAPPER_LINK} ]; then
+    if [ -e ${WRAPPER_LINK} ]; then
         echo "ROS conda wrapper file already present in your home directory."
     else
         echo "ROS conda wrapper file added to your home directory."
         ln -fs "$(pwd)/$WRAPPER_NAME" "$(echo $HOME)/$WRAPPER_NAME"
     fi
-    elif [ -e ${WRAPPER_LINK} ] ; then
+elif [ -e ${WRAPPER_LINK} ]; then
     echo "ROS conda wrapper file added to your home directory."
     ln -fs "$(pwd)/$WRAPPER_NAME" "$(echo $HOME)/$WRAPPER_NAME"
 else
@@ -27,12 +27,11 @@ fi
 if [ -z "$exists" ]; then
     cp ~/.bashrc ~/.bashrc_bak # Create backup
     sed --follow-symlinks -e '${/^$/!G;}' -i ~/.bashrc
-    cat >> ~/.bashrc <<-EOL
+    cat >>~/.bashrc <<-EOL
 # >>> ros_conda_wrapper initialize >>>
 ## Source conda wrapper script
 if [ -f "$HOME/.ros_conda_wrapper_rc" ]; then
     . "$HOME/.ros_conda_wrapper_rc"
-    export ROS_CONDA_WRAPPER=True
 fi
 # <<< ros_conda_wrapper initialize <<<
 EOL
@@ -40,4 +39,3 @@ EOL
 else
     echo "ROS Conda wrapper already installed to your .bashrc file."
 fi
-

@@ -6,7 +6,7 @@
 [![Conda version](https://img.shields.io/badge/conda-%3D%3E4.4-blue)](https://conda.io/en/latest/)
 [![Python 3](https://img.shields.io/badge/python%203-3.7%20%7C%203.6%20%7C%203.5-yellow.svg)](https://www.python.org/)
 [![Python 2](https://img.shields.io/badge/python%202-2.7%20%7C%202.6%20%7C%202.5-brightgreen.svg)](https://www.python.org/)
-[![Ros versions](https://img.shields.io/badge/ROS%20versions-Melodic%20%7C%20Kinectic-brightgreen)](https://wiki.ros.org)
+[![ROS versions](https://img.shields.io/badge/ROS%20versions-Melodic%20%7C%20Kinectic-brightgreen)](https://wiki.ros.org)
 
 This wrapper solves some problems people have while trying to use ROS Kinetic/Melodic inside a Conda environment.
 
@@ -31,7 +31,7 @@ ROS kinetic does not support python 3. Further, there are no plans to port the R
     cd .ros_conda_wrapper
     ```
 
-2.  Run the `install.sh` script to install the ROS conda wrapper.
+2.  Run the `install.sh` script to install the ROS Conda wrapper.
 
 ### Manual installation
 
@@ -48,7 +48,6 @@ ROS kinetic does not support python 3. Further, there are no plans to port the R
     ## Source conda wrapper script
     if [ -f "$HOME/.conda_wrapper" ]; then
         . "$HOME/.conda_wrapper"
-        export ROS_CONDA_WRAPPER=True
     fi
     # <<< ros_conda_wrapper initialize <<<
     ```
@@ -59,18 +58,31 @@ To uninstall the ros Conda warpper run the `uninstall.sh` script before removing
 
 ## How to use
 
-### Ros Conda wrapper commands
+### ROS Conda wrapper commands
 
-All of the original `conda` commands work as expected. Additionally, to extra commands have been added:
+All of the original `conda` commands work as expected. Additionally, a additional ``--ros_wrapper`` 
+command has been added. This command takes the following options:
 
--   `conda rosinit`: Initiates a ros_conda python 3 environment.
--   `conda rosdeinit`: Removes the ros_conda python 3 enviroment initiation.
+-   `activate`: Activates the ROS Conda wrapper.
+-   `deactivate`: Deactivates the ROS Conda wrapper.
+-   `init <CONDA_ENVIRONMENT>`: Initializes a given <CONDA_ENVIRONMENT> to work with ROS.
+-   `deinit <CONDA_ENVIRONMENT>`: Deinitailizes a given ROS <CONDA_ENVIRONMENT> to work.
+-   `-h, --help`: Displays usage information.
+-   `-h, --help`: ROS Conda wrapper version.
 
-**NOTE:** The `conda rosinit` command does not create the enviroment itself it only performs some actions such that ros will work inside a python 3 conda environment.
+**NOTE:** The `conda --ros_wrapper init` command does not create the environment itself it only performs some actions such that ros will work inside a python 3 Conda environment.
+
+### ROS Conda wrapper enviroment variables
+
+The ROS Conda wrapper adds the following environment variables:
+
+-   `ROS_CONDA_WRAPPER`: Specifies whether the ROS Conda wrapper is installed.
+-   `ROS_CONDA_WRAPPER_ACTIVE`: Specifies whether the ROS Conda wrapper is activated.
+-   `ROS_CONDA_WRAPPER_ERROR`: Anaconda is not installed.
 
 ## How it works
 
-The `.conda_wrapper` script creates an alias which wraps the original `activate` and `deactivate` conda executable arguments. Following these wrappers fix a conflict in the [PYTHONPATH between ROS and CONDA](https://answers.ros.org/question/256886/conflict-anaconda-vs-ros-catking_pkg-not-found/). Additionally the `conda rosinit <NAME_OF_YOUR_ENVIRONMENT>` command can be used to setup an environment in such a way that ROS works inside the environment. This is done by installing some additional python packages ros needs.
+The `.conda_wrapper` script creates an alias which wraps the original `activate` and `deactivate` Conda executable arguments. Following these wrappers fix a conflict in the [PYTHONPATH between ROS and CONDA](https://answers.ros.org/question/256886/conflict-anaconda-vs-ros-catking_pkg-not-found/). Additionally the `conda rosinit <NAME_OF_YOUR_ENVIRONMENT>` command can be used to setup an environment in such a way that ROS works inside the environment. This is done by installing some additional python packages ros needs.
 
 ## Known issues
 
@@ -79,13 +91,6 @@ The `.conda_wrapper` script creates an alias which wraps the original `activate`
 ## Contributing
 
 Contributions to this repository are welcome. See the [contribution guidelines](contributing.md) for more information.
-
-### Roadmap
-
--   [issue #4](https://github.com/rickstaa/ros_conda_wrapper/issues/4)
--   [issue #5](https://github.com/rickstaa/ros_conda_wrapper/issues/5)
--   [feature #1](https://github.com/rickstaa/ros_conda_wrapper/issues/1)
--   [feature #3](https://github.com/rickstaa/ros_conda_wrapper/issues/3)
 
 ## License
 
