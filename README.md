@@ -6,8 +6,12 @@
 [![Python 3](https://img.shields.io/badge/python%203-3.7%20%7C%203.6%20%7C%203.5-yellow.svg)](https://www.python.org/)
 [![Python 2](https://img.shields.io/badge/python%202-2.7%20%7C%202.6%20%7C%202.5-brightgreen.svg)](https://www.python.org/)
 [![ROS versions](https://img.shields.io/badge/ROS%20versions-Melodic%20%7C%20Kinectic-brightgreen)](https://wiki.ros.org)
+![Supported shells](https://img.shields.io/badge/Supported%20shells-bash-blue)
 
 This wrapper solves some problems people have while trying to use ROS Kinetic/Melodic inside a Conda environment.
+
+## Kkown issues
+:construction::bug: The warpper currently only works in the base enviroment [#8](https://github.com/rickstaa/.ros_conda_wrapper/issues/8). I will solve this later this month.
 
 ## How to setup
 
@@ -35,10 +39,10 @@ This wrapper solves some problems people have while trying to use ROS Kinetic/Me
     ```sh
     # >>> ros_conda_wrapper initialize >>>
     ## Source conda wrapper script
-    if [ -f "$HOME/.conda_wrapper" ]; then
-        . "$HOME/.conda_wrapper"
+    if [ -f "$HOME/.ros_conda_wrapper_rc" ]; then
+        . "$HOME/.ros_conda_wrapper_rc"
     fi
-    # <<< ros_conda_wrapper initialize <<<
+    # <<< ros_conda_wrapper initialize <<
     ```
 
 ## How to uninstall
@@ -83,10 +87,6 @@ As ROS Melodic does not yet fully support python3, it does not fully work inside
 ### ROS Kinetic
 
 ROS kinetic does not support python 3. Further, there are no plans to port the ROS kinetic python 2 packages too python 3 ([see ROS REP 3](https://www.ros.org/reps/rep-0003.html)).
-
-## Known issues
-
--   The wrapper currently only works with `catkin_make` and not `catkin build` (see [this issue](https://github.com/rickstaa/ros_conda_wrapper/issues/4)).
 
 ## Contributing
 
