@@ -7,6 +7,9 @@
 export ROS_CODNA_WRAPPER=true
 export ROS_CONDA_WRAPPER_ACTIVE=true
 
+# Set script variables
+ROS_CONDA_WRAPPER_ERROR=false
+
 # Unset previoussly set functions
 unset -f _ros_conda_wrapper
 unset -f _ros_conda_source_wrapper
@@ -22,16 +25,22 @@ if ! type "conda" >/dev/null 2>&1; then
     echo -e "${ORANGE}WARNING:${NC} The ROS Conda wrapper could not be set since anaconda is not installed." 1>&2
 
     # Set conda wrapper error variable
-    export ROS_CONDA_WRAPPER_ERROR=true
+    ROS_CONDA_WRAPPER_ERROR=true
 else
-    # Check conda version
-    CONDA_VERSION=$(\conda --version | sed 's|[^0-9.]||g')
 
     # Get Conda install pythonpath
     CONDA_PATH=$(echo $CONDA_EXE | sed -e 's/\/bin\/conda//')
 
-    # Set conda wrapper error variable
-    export ROS_CONDA_WRAPPER_ERROR=false
+    # Get Conda base site packages path
+    CONDA_BASE_SITE_PACKAGES_PATH=$(find ${CONDA_PATH}"/lib" -iname site-packages)
+
+    # Check conda version
+    # CONDA_VERSION=$(\conda -V | sed 's|[^0-9.]||g') # NOTE: On main os to stdout and in container to stderr
+    # CONDA_VERSION=$(\conda info | grep "conda version" | sed 's|[^0-9.]||g') # NOTE: To slow
+    CONDA_VERSION=$(cat ${CONDA_BASE_SITE_PACKAGES_PATH}"/conda/.version")
+
+    # Set Conda wrapper error variable
+    ROS_CONDA_WRAPPER_ERROR=false
 fi
 
 # Required ros packages
@@ -232,11 +241,20 @@ function _ros_conda_wrapper() {
         # Find site packages folder
         _conda_site_packages_path=$(find ${_conda_env_path}"/lib" -iname site-packages)
 
+        # Get Conda environment name and path
+        if [[ $2 == "" ]]; then
+            _conda_env_name="base"
+            _conda_site_packages_path=CONDA_BASE_SITE_PACKAGES_PATH
+        else
+            _conda_env_name=$2
+            _conda_site_packages_path=$(find ${CONDA_PATH}"/envs/"${_conda_env_name}"/lib" -iname site-packages)
+        fi
+
         # Safe old Conda pythonpath
         export _OLD_PYTHONPATH="$PYTHONPATH"
 
         # Prepent Conda site-packages folder to the PYTHONPATH
-        export PYTHONPATH="$_conda_site_packages_path:$PYTHONPATH"
+        export PYTHONPATH="${_conda_site_packages_path}:${PYTHONPATH}"
 
         # Make sure the activation conda command is executed
         \conda "$@"
@@ -339,6 +357,15 @@ function _ros_conda_wrapper() {
 function _ros_conda_source_wrapper() {
     if [[ $1 == "activate" && $ROS_CONDA_WRAPPER_ACTIVE ]]; then # Warp Conda deactivate command
 
+        # # Get Conda environment name and path
+        # if [[ $2 == "" ]]; then
+        #     _conda_env_name="base"
+        #     _conda_site_packages_path=CONDA_BASE_SITE_PACKAGES_PATH
+        # else
+        #     _conda_env_name=$2
+        #     _conda_site_packages_path=$(find ${CONDA_PATH}"/envs/"${_conda_env_name}"/lib" -iname site-packages)
+        # fi
+
         # Get Conda environment name and path
         if [[ $2 == "" ]]; then
             _conda_env_name="base"
@@ -348,19 +375,21 @@ function _ros_conda_source_wrapper() {
             _conda_env_path=${CONDA_PATH}"/envs/"${_conda_env_name}
         fi
 
-        # Find site packages folder
-        _conda_site_packages_path=$(find ${_conda_env_path}"/lib" -iname site-packages)
-
         # Safe old Conda pythonpath
         export _OLD_PYTHONPATH="$PYTHONPATH"
-
-        # Prepent Conda site-packages folder to the PYTHONPATH
-        export PYTHONPATH="$_conda_site_packages_path:$PYTHONPATH"
 
         # Make sure the activation conda command is executed
         \source "$@"
 
-    elif [[ $1 == "deactivate" && $ROS_CONDA_WRAPPER_ACTIVE ]]; then # Warp Conda deactivate command
+        # Find site packages folder
+        # _conda_site_packages_path=$(find ${_conda_env_path}"/lib" -iname site-packages)
+
+        # Prepent Conda site-packages folder to the PYTHONPATH
+        # export PYTHONPATH="$_conda_site_packages_path:$PYTHONPATH"
+
+    elif
+        [[ $1 == "deactivate" && $ROS_CONDA_WRAPPER_ACTIVE ]]
+    then # Warp Conda deactivate command
 
         # Remove Conda site-packages folder from the PYTHONPATH
         PYTHONPATH=$_OLD_PYTHONPATH
@@ -456,7 +485,7 @@ function _ros_conda_source_wrapper() {
 ####################################
 
 ## Create Conda alias to wrap Conda executable
-if [[ ! $ROS_CONDA_WRAPPER_ERROR ]]; then
+if [[ "$ROS_CONDA_WRAPPER_ERROR" == false ]]; then
     if [[ $CONDA_VERSION > 4.4 ]]; then # Use conda wrapper
         alias conda='_ros_conda_wrapper $@'
     else # Use source wrapper
