@@ -7,17 +7,17 @@ exists=$(sed -n "/$start_str/,/$end_str/p" ~/.bashrc) # Check if patern is alrea
 
 # REmove symbolic link to the .ros_conda_wrapper_rc file
 WRAPPER_NAME=".ros_conda_wrapper_rc"
-WRAPPER_LINK="$(echo $HOME)/$WRAPPER_NAME"
-if [ -L ${WRAPPER_LINK} ]; then
-    if [ -e ${WRAPPER_LINK} ]; then
+WRAPPER_LINK="$(echo "$HOME")/$WRAPPER_NAME"
+if [ -L "${WRAPPER_LINK}" ]; then
+    if [ -e "${WRAPPER_LINK}" ]; then
         echo "ROS conda wrapper file removed from you home directory."
-        rm $WRAPPER_LINK
+        rm "$WRAPPER_LINK"
     else
         echo "ROS conda wrapper not present in you home directory."
     fi
-elif [ -e ${WRAPPER_LINK} ]; then
+elif [ -e "${WRAPPER_LINK}" ]; then
     echo "ROS conda wrapper file removed from you home directory."
-    rm $WRAPPER_LINK
+    rm "$WRAPPER_LINK"
 else
     echo "ROS conda wrapper not present in you home directory."
 fi
