@@ -1,0 +1,937 @@
+#!/usr/bin/env bash
+## -- ROS Conda wrapper --
+# This wrapper was added to solve for the conflicts caused by sourcing a ROS setup.bash file inside a
+# Conda environment .
+# TODO: Update version
+# TODO: Update changelog
+# TODO: FIX conda version 4.4 to exact =>
+
+# Set environment variables
+export ROS_CONDA_WRAPPER=true
+
+# Set Global variables
+ROS_CONDA_WRAPPER_PROGNAME="ROS Conda wrapper"
+ROS_CONDA_WRAPPER_ERROR=false
+ROS_CONDA_WRAPPER_VERSION=1.0.0
+ROS_CONDA_CONFIG_FILE_NAME="${HOME}/.ros_conda_wrapper_rc_cfg"
+
+# Bash echo colors
+ORANGE_CC='\033[0;33m'
+NC_CC='\033[0m' # No Color
+
+# Required ROS packages
+ROS_CONDA_DEPS=()
+ROS_CONDA_FORGE_DEPS=("ros-core" "ros-actionlib" "ros-dynamic-reconfigure")
+ROS_CONDA_PIP_DEPS=()
+
+# Perform some cleanup actions
+unalias conda 2> /dev/null
+unset -f _ros_conda_load_config_vars 2> /dev/null
+unset -f _ros_conda_save_config_vars 2> /dev/null
+unset -f _ros_conda_usage 2> /dev/null
+unset -f _ros_conda_path_fix_outside 2> /dev/null
+unset -f _ros_conda_path_fix_inside 2> /dev/null
+unset -f _ros_conda_pythonpath_fix_outside 2> /dev/null
+unset -f _ros_conda_pythonpath_fix_inside 2> /dev/null
+unset -f _ros_conda_is_conda_env 2> /dev/null
+unset -f _ros_conda_init 2> /dev/null
+unset -f _ros_conda_deinit 2> /dev/null
+unset -f _ros_conda_wrapper 2> /dev/null
+unset -f _ros_conda_source_wrapper 2> /dev/null
+unset -f _ros_conda_dot_source_wrapper 2> /dev/null
+
+###############################################
+## Ros Conda wrapper member functions #########
+###############################################
+_ros_conda_load_config_vars() {
+	# Load conda wrapper configuration values
+	if [[ -a "$ROS_CONDA_CONFIG_FILE_NAME" ]]; then
+
+		# Read variables from file
+		while IFS="=" read -r key val; do
+			case "$key" in
+				'#'*) 
+					;; # Skip comments
+				'ROS_CONDA_WRAPPER_ACTIVE')
+					eval "$key=\"$val\""
+					;;
+			esac
+		done < $ROS_CONDA_CONFIG_FILE_NAME
+
+		# Parse variables to make sure they are alright
+		case "$ROS_CONDA_WRAPPER_ACTIVE" in
+			"true"|"True"|"TRUE"|"false"|"False"|"FALSE")
+				;;	
+			*)
+				# Value was not valid set to default
+				ROS_CONDA_WRAPPER_ACTIVE=true
+				;;
+		esac
+
+		# Export variable
+		export ROS_CONDA_WRAPPER_ACTIVE
+	else
+
+		# Create file
+		{ 
+		cat > "$ROS_CONDA_CONFIG_FILE_NAME" <<- EOL
+		# Ros Conda wrapper settings
+		ROS_CONDA_WRAPPER_ACTIVE=true
+		EOL
+		} || {
+			printf "%s:${ORANGE}warning:${NC} Configuration file could not be loaded. Default values were used instead. %s\n" "$PROGNAME"		
+		}
+
+		# Use defaults
+		export ROS_CONDA_WRAPPER_ACTIVE=true
+	fi
+
+}
+
+_ros_conda_save_config_vars() {
+	# Save the Conda wrapper configuration values
+	{
+		cat > "$ROS_CONDA_CONFIG_FILE_NAME" <<- EOL
+		# Ros Conda wrapper settings
+		ROS_CONDA_WRAPPER_ACTIVE=$ROS_CONDA_WRAPPER_ACTIVE
+		EOL
+	} || {
+		printf "%s:${ORANGE}warning:${NC} Pathmod configuration values could not be saved. %s\n" "$PROGNAME"		
+	}
+}
+
+_ros_conda_usage() {
+	# Script that prints usage information
+	cat <<- EOF
+	usage: $ROS_CONDA_WRAPPER_PROGNAME options
+
+	This wrapper solves some problems people have while trying to use ROS Kinetic/Melodic
+	inside a Conda environment.
+	
+	OPTIONS:
+	   activate                     Activate the ROS Conda wrapper.
+	   deactivate                   Deactivate the ROS Conda wrapper.
+	   init <CONDA_ENVIRONMENT>     Initialize a given <CONDA_ENVIRONMENT> to work with ROS.
+	   deinit <CONDA_ENVIRONMENT>   Deinitailize a given ROS <CONDA_ENVIRONMENT> to work.
+	   -h, --help                   Displays usage information.
+	   -v, --version                ROS Conda wrapper version.
+	EOF
+}
+
+function _ros_conda_path_fix_outside() {
+	# This function makes sure the anaconda bin and condabin folders
+	# are further on the path than the /usr/bin, /bin and 
+	# /opt/ros/<ROSVERSION>/bin when outside an anaconda environment.
+	# It further makes sure that the anaconda site packages folder is
+	# removed from the $PYTHONPATH.
+
+	# Make sure the Conda paths are at the end of the PATH variable
+	for path in "${CONDA_PATHS_ARRAY[@]}"; do
+		if [[ :${PATH}: == *:"${path}":* ]]  ; then
+
+			# Remove all occurances from PATH variable
+			while [[ :${PATH}: == *:"${path}":* ]] ; do 
+				# Remove path from PATH variable
+				PATH=${PATH//":${path}:"/":"} # delete any instances in the middle
+				PATH=${PATH/#"${path}:"/} # delete any instance at the beginning
+				PATH=${PATH/%":${path}"/} # delete any instance in the at the end
+			done
+
+			# Add path to the end
+			PATH="${PATH:+${PATH}:}${path}"
+		fi
+	done
+
+	# Export PATH
+	export PATH
+}
+
+function _ros_conda_path_fix_inside() {
+	# This function makes sure the anaconda bin and condabin folders
+	# are earlier on the path than the /usr/bin, /bin and 
+	# /opt/ros/<ROSVERSION>/bin when inside an anaconda environment.
+
+	# Make sure the Conda paths are at the beginnging of the PATH variable
+	for path in "${CONDA_PATHS_ARRAY[@]}"; do
+		if [[ :${PATH}: == *:"${path}":* ]]  ; then
+
+			# Remove all occurances from PATH variable
+			while [[ :${PATH}: == *:"${path}":* ]] ; do 
+
+				# Remove path from PATH variable
+				PATH=${PATH//":${path}:"/":"} # delete any instances in the middle
+				PATH=${PATH/#"${path}:"/} # delete any instance at the beginning
+				PATH=${PATH/%":${path}"/} # delete any instance in the at the end
+			done
+
+			# Prepent to PATH variable
+			PATH="${path}${PATH:+:${PATH}}"
+		fi
+	done
+
+	# Export PATH
+	export PATH
+}
+
+function _ros_conda_pythonpath_fix_outside() {
+	# This function makes sure the anaconda site packages folder
+	# is removed from the PYTHONPATH when outside an anaconda
+	# environment.
+
+	# Remove any Conda site-packages folder from the PYTHONPATH
+	while [[ :${PYTHONPATH}: == *:"${CONDA_PATH}"*"site-packages":* ]]; do
+
+		# Remove path from PATH variable
+		PYTHONPATH=${PYTHONPATH//":${CONDA_PATH}"*"site-packages:"/":"} # delete any instances in the middle
+		PYTHONPATH=${PYTHONPATH/#"${CONDA_PATH}"*"site-packages:"/} # delete any instance at the beginning
+		PYTHONPATH=${PYTHONPATH/%":${CONDA_PATH}"*"site-packages"/} # delete any instance in the at the end
+	done
+
+	# Export PYTHONPATH
+	export PYTHONPATH
+}
+
+function _ros_conda_pythonpath_fix_inside() {
+	# This function makes sure that the anaconda site packages 
+	# folder comes before the ROS melodic dist-packages folder
+	# when inside a anaconda environment.
+
+	# Get Conda environment name and path
+	if [[ $_conda_env_name == "base" ]]; then
+		local _conda_site_packages_path=$CONDA_BASE_SITE_PACKAGES_PATH
+	else
+		local _conda_site_packages_path=$(find ${CONDA_PATH}"/envs/"${_conda_env_name}"/lib" -iname site-packages 2> /dev/null)
+	fi
+
+	# Prepent Conda site-packages folder to the PYTHONPATH
+	if [[ -d $_conda_site_packages_path ]]; then
+		if [[ ":$PYTHONPATH:" != *":${_conda_site_packages_path}:"* ]]; then
+
+			# Add Conda site-packages folder to PYTHONPATH
+			PYTHONPATH="${_conda_site_packages_path}:${PYTHONPATH}"
+		else
+
+			# Remove any Conda site-packages folder from the PYTHONPATH if it exists
+			while [[ :$PYTHONPATH: == *":${_conda_site_packages_path}:"* ]]; do
+				# Remove path from PATH variable
+				PYTHONPATH=${PYTHONPATH//":${_conda_site_packages_path}:"/":"} # delete any instances in the middle
+				PYTHONPATH=${PYTHONPATH/#"${_conda_site_packages_path}:"/} # delete any instance at the beginning
+				PYTHONPATH=${PYTHONPATH/%":${_conda_site_packages_path}"/} # delete any instance in the at the end
+			done
+
+			# Add Conda site-packages folder to PYTHONPATH
+			PYTHONPATH="${_conda_site_packages_path}:${PYTHONPATH}"
+		fi
+
+		# Export PATH
+		export PYTHONPATH
+	fi
+}
+
+function _ros_conda_is_conda_env() {
+	# This function checks if a Conda environment exists
+	# it returns 0 if it does and 1 if it does not.
+	if [[ ! -z $(\conda info --envs | grep -e "$1" | awk '{ print $1}') ]]; then
+		local retval="true" # Enviroment exists
+	else
+		local retval="false"  # Enviroment exists
+	fi
+	echo "$retval" # Return result
+}
+
+function _ros_conda_init() {
+	# This function installs the packages that are needed to enable
+	# ROS to work from within a Conda environment.
+
+	# Get Conda environment name and path
+	if [[ "$1" == "" ]]; then
+
+		# If environment is active initialize that environment otherwise initialize base
+		if  [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then
+
+			# Retreive Conda env name
+			local _conda_env_name="$CONDA_DEFAULT_ENV"
+
+			# Retreive Conda env path
+			local _conda_env_path=${CONDA_PATH}"/envs/"${_conda_env_name}
+		else
+
+			# Retreive Conda environment path
+			local _conda_env_name="base"
+			local _conda_env_path="$CONDA_PATH"
+		fi
+	elif [[ "$1" == "base" ]]; then
+
+		# Retreive Conda environment path
+		local _conda_env_name="base"
+		local _conda_env_path="$CONDA_PATH"
+	else
+
+		# Retreive Conda environment path
+		local _conda_env_name="$1"
+		local _conda_env_path=${CONDA_PATH}"/envs/"${_conda_env_name}
+	fi
+
+	# Install ROS Conda python dependencies if they are not yet installed
+	if [[ ! ${#ROS_CONDA_DEPS[@]} -eq 0 ]]; then
+		for dep in "${ROS_CONDA_DEPS[@]}"; do
+			if [[ $(\conda list -n $_conda_env_name | grep -w "$dep" | grep -P '(?<!-)'"$dep"'(?!-)' | awk '{ print $1 }') != $dep ]]; then
+				echo "Installing conda package: $dep"
+				\conda install -n $_conda_env_name --yes "$dep"
+			else
+				echo "Conda package requirement already statisfied: $dep"
+			fi
+		done
+	fi
+
+	# Install if ROS Conda forge python dependencies if they are not yet installed
+	if [[ ! ${#ROS_CONDA_FORGE_DEPS[@]} -eq 0 ]]; then
+		for dep in "${ROS_CONDA_FORGE_DEPS[@]}"; do
+			if [[ $(\conda list -n $_conda_env_name | grep -w "$dep" | grep -P '(?<!-)'"$dep"'(?!-)' | awk '{ print $1 }') != $dep ]]; then
+				echo "Installing conda package: $dep"
+				\conda install -n $_conda_env_name --channel conda-forge --yes "$dep"
+			else
+				echo "Conda package requirement already statisfied: $dep"
+			fi
+		done
+	fi
+
+	# Get pip install locations
+	if [[ -z $(find ${_conda_env_path}"/bin/" -iname pip) ]]; then
+
+		# Install pip if not installed already
+		if [[ ! $(\conda list -n $_conda_env_name | grep -w "pip" | grep -P '(?<!-)'"pip"'(?!-)' | awk '{ print $1 }') != "pip" ]]; then
+			echo "Installing conda package: pip"
+			\conda install --yes pip
+		fi
+		local _env_pip_path=$(find ${_conda_env_path}"/bin/" -iname pip)
+
+	else
+		local _env_pip_path=$(find ${_conda_env_path}"/bin/" -iname pip)
+	fi
+
+	# Install ROS pip python dependencies if they are not yet installed
+	if [[ ! ${#ROS_CONDA_PIP_DEPS[@]} -eq 0 ]]; then
+		for dep in "${ROS_CONDA_PIP_DEPS[@]}"; do
+			if [[ $($_env_pip_path list | grep -w "$dep" | grep -P '(?<!-)'"$dep"'(?!-)' | awk '{ print $1 }') != $dep ]]; then
+				echo "Installing pip package: $dep"
+				$_env_pip_path install "$dep"
+			else
+				echo "Pip package requirement already statisfied: $dep"
+			fi
+		done
+	fi
+
+	# Set CONDA_INIT environmental variable to true
+	if [[ ! -f "$_conda_env_path/etc/conda/activate.d/env_vars.sh" ]]; then # Generate env vars activation file folder
+		mkdir -p "$_conda_env_path/etc/conda/activate.d"
+		cat <<-EOF >"$_conda_env_path/etc/conda/activate.d/env_vars.sh"
+			#!/bin/sh
+
+			## ROS_CONDA wrapper ENV variables
+			# Created on $(date)
+			export ROS_CONDA=TRUE
+		EOF
+	elif ! grep -q "ROS_CONDA=" "$_conda_env_path/etc/conda/activate.d/env_vars.sh"; then
+		cat <<-EOF >>"$_conda_env_path/etc/conda/activate.d/env_vars.sh"
+
+			## ROS_CONDA wrapper ENV variables
+			# Created on $(date)
+			export ROS_CONDA=TRUE
+		EOF
+	else
+		sed -i -e 's/ROS_CONDA=FALSE/ROS_CONDA=TRUE/g' $_conda_env_path/etc/conda/activate.d/env_vars.sh
+	fi
+
+	# Create ROS environmental variable unset file if it does not exist
+	if [ ! -f "$_conda_env_path/etc/conda/deactivate.d/env_vars.sh" ]; then # Generate env vars deactivation file folder
+		mkdir -p "$_conda_env_path/etc/conda/deactivate.d"
+		cat <<-EOF >"$_conda_env_path/etc/conda/deactivate.d/env_vars.sh"
+			#!/bin/sh
+
+			## ROS_CONDA wrapper ENV variables
+			# Created on $(date)
+			unset ROS_CONDA
+		EOF
+	elif ! grep -q "unset ROS_CONDA" "$_conda_env_path/etc/conda/deactivate.d/env_vars.sh"; then
+		cat <<-EOF >>"$_conda_env_path/etc/conda/deactivate.d/env_vars.sh"
+
+			## ROS_CONDA wrapper ENV variables
+			# Created on $(date)
+			unset ROS_CONDA
+		EOF
+	fi
+}
+
+function _ros_conda_deinit() {
+	# This function removes the packages that are needed to enable 
+	# ROS to work from within a Conda environment.
+
+	# Get Conda environment name and path
+	if [[ "$1" == "" ]]; then
+
+		# If environment is active initialize that environment otherwise initialize base
+		if  [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then
+
+			# Retreive Conda env name
+			local _conda_env_name="$CONDA_DEFAULT_ENV"
+
+			# Retreive Conda env path
+			local _conda_env_path=${CONDA_PATH}"/envs/"${_conda_env_name}
+		else
+
+			# Retreive Conda environment path
+			local _conda_env_name="base"
+			local _conda_env_path="$CONDA_PATH"
+		fi
+	elif [[ "$1" == "base" ]]; then
+
+		# Retreive Conda environment path
+		local _conda_env_name="base"
+		local _conda_env_path="$CONDA_PATH"
+	else
+
+		# Retreive Conda environment path
+		local _conda_env_name="$1"
+		local _conda_env_path=${CONDA_PATH}"/envs/"${_conda_env_name}
+	fi
+
+	# Remove ROS Conda python dependencies if they are installed
+	if [[ ! ${#ROS_CONDA_DEPS[@]} -eq 0 ]]; then
+		for dep in "${ROS_CONDA_DEPS[@]}"; do
+			if [[ ! $(\conda list -n $_conda_env_name | grep -w "$dep" | grep -P '(?<!-)'"$dep"'(?!-)' | awk '{ print $1 }') != $dep ]]; then
+				echo "Removing conda package: $dep"
+				\conda remove -n $_conda_env_name --yes "$dep"
+			else
+				echo "Conda package requirement already removed: $dep"
+			fi
+		done
+	fi
+
+	# Remove ROS Conda Forge python dependencies if they are installed
+	if [[ ! ${#ROS_CONDA_FORGE_DEPS[@]} -eq 0 ]]; then
+		for dep in "${ROS_CONDA_FORGE_DEPS[@]}"; do
+			if [[ ! $(\conda list -n $_conda_env_name | grep -w "$dep" | grep -P '(?<!-)'"$dep"'(?!-)' | awk '{ print $1 }') != $dep ]]; then
+				echo "Removing conda package: $dep"
+				\conda remove -n $_conda_env_name --channel conda-forge --yes "$dep"
+			else
+				echo "Conda package requirement already removed: $dep"
+			fi
+		done
+	fi
+
+	# Get pip install locations
+	if [[ -z $(find ${_conda_env_path}"/bin/" -iname pip) ]]; then
+
+		# Install pip if not installed already
+		if [[ ! $(\conda list -n $_conda_env_name | grep -w "pip" | grep -P '(?<!-)'"pip"'(?!-)' | awk '{ print $1 }') != "pip" ]]; then
+			echo "Installing conda package: pip"
+			\conda install --yes pip
+		fi
+		local _env_pip_path=$(find ${_conda_env_path}"/bin/" -iname pip)
+	else
+		local _env_pip_path=$(find ${_conda_env_path}"/bin/" -iname pip)
+	fi
+
+	# Remove ROS pip python dependencies
+	if [[ ! ${#ROS_CONDA_PIP_DEPS[@]} -eq 0 ]]; then
+		for dep in "${ROS_CONDA_PIP_DEPS[@]}"; do
+			if [[ ! $($_env_pip_path list | grep -w "$dep" | grep -P '(?<!-)'"$dep"'(?!-)' | awk '{ print $1 }') != $dep ]]; then
+				echo "Removing pip package: $dep"
+				$_env_pip_path uninstall --yes "$dep"
+			else
+				echo "Pip package already removed: $dep"
+			fi
+		done
+	fi
+
+	# Set CONDA_INIT environmental variable to true
+	if [[ ! -f "$_conda_env_path/etc/conda/activate.d/env_vars.sh" ]]; then # Generate env vars activation file folder
+		mkdir -p "$_conda_env_path/etc/conda/activate.d"
+		cat <<-EOF >"$_conda_env_path/etc/conda/activate.d/env_vars.sh"
+			#!/bin/sh
+
+			## ROS_CONDA wrapper ENV variables
+			# Created on $(date)
+			export ROS_CONDA=FALSE
+		EOF
+	elif ! grep -q "ROS_CONDA=" "$_conda_env_path/etc/conda/activate.d/env_vars.sh"; then
+		cat <<-EOF >>"$_conda_env_path/etc/conda/activate.d/env_vars.sh"
+
+			## ROS_CONDA wrapper ENV variables
+			# Created on $(date)
+			export ROS_CONDA=FALSE
+		EOF
+	else
+		sed -i -e 's/ROS_CONDA=TRUE/ROS_CONDA=FALSE/g' $_conda_env_path/etc/conda/activate.d/env_vars.sh
+	fi
+
+	# Create ROS environmental variable unset file if it does not exist
+	if [[ ! -f "$_conda_env_path/etc/conda/deactivate.d/env_vars.sh" ]]; then # Generate env vars deactivation file folder
+		mkdir -p "$_conda_env_path/etc/conda/deactivate.d"
+		cat <<-EOF >"$_conda_env_path/etc/conda/deactivate.d/env_vars.sh"
+			#!/bin/sh
+
+			## ROS_CONDA wrapper ENV variables
+			# Created on $(date)
+			unset ROS_CONDA
+		EOF
+	elif ! grep -q "unset ROS_CONDA" "$_conda_env_path/etc/conda/deactivate.d/env_vars.sh"; then
+		cat <<-EOF >>"$_conda_env_path/etc/conda/deactivate.d/env_vars.sh"
+
+			## ROS_CONDA wrapper ENV variables
+			# Created on $(date)
+			unset ROS_CONDA
+		EOF
+	fi
+}
+
+###############################################
+## ros_conda_wrapper main wrapper functions ###
+###############################################
+function _ros_conda_wrapper() {
+	# This function serves a wrapper around the original Conda command. It is used
+	# for Conda versions > 4.4.
+	if [[ "$1" == "activate" && "$ROS_CONDA_WRAPPER_ACTIVE" == "true" && ("$ROS_CONDA_CONDA_VERSION" > 4.4.0 || "$ROS_CONDA_CONDA_VERSION" = 4.4.0) ]]; then # Warp Conda deactivate command
+	
+		# Get Conda environment name and path
+		if [[ "$#" == 1 ]]; then
+			local _conda_env_name="base"
+			local _conda_env_path="$CONDA_PATH"
+
+			# Make sure the activation Conda command is executed
+			\conda "activate" "$_conda_env_name"
+		else
+			local _conda_env_name="$2"
+			local _conda_env_path=${CONDA_PATH}"/envs/"${_conda_env_name}
+
+			# Make sure the activation Conda command is executed
+			\conda "$@"
+		fi
+
+		# Apply path modifications if environment exists
+		if [[ "$(_ros_conda_is_conda_env $_conda_env_name)" == "true" ]]; then
+
+			# Fix PATH and PYTHONPATH such that anaconda python is used
+			_ros_conda_path_fix_inside
+			_ros_conda_pythonpath_fix_inside
+		fi
+
+	elif [[ "$1" == "deactivate" && "$ROS_CONDA_WRAPPER_ACTIVE" == "true" && ("$ROS_CONDA_CONDA_VERSION" > 4.4.0 || "$ROS_CONDA_CONDA_VERSION" = 4.4.0) ]]; then # Warp Conda deactivate command
+
+		# Make sure the deactivation Conda command is executed
+		\conda "$@"
+
+		# Fix PATH and PYTHONPATH such that the system and ROS python are used
+		_ros_conda_path_fix_outside
+		_ros_conda_pythonpath_fix_outside
+
+
+	elif [[ "$1" == "--ros-wrapper" ]]; then # Add ROS Conda wrapper cli
+
+		# ROS Conda wrapper commands
+		if [[ "$2" == "activate" ]]; then
+
+			# Set ROS_CONDA_WRAPPER_ACTIVE environmental variable
+			export ROS_CONDA_WRAPPER_ACTIVE=true
+
+			# Save values to config file
+			_ros_conda_save_config_vars
+		elif [[ "$2" == "deactivate" ]]; then
+
+			# Set ROS_CONDA_WRAPPER_ACTIVE environmental variable
+			export ROS_CONDA_WRAPPER_ACTIVE=false
+
+			# Save values to config file
+			_ros_conda_save_config_vars
+		elif [[ "$2" == "init" ]]; then # Initialize BASE Conda environment to work with ROS
+
+			# Get Conda environment name
+			if [[ "$3" == "" ]]; then
+				local _conda_env_name="base"
+			else
+				local _conda_env_name="$3"
+			fi
+
+			# Check wheter environment that user specified is valid
+			if [[ "$(_ros_conda_is_conda_env $_conda_env_name)" == "false" ]]; then
+				echo "Could not find Conda environment: $_conda_env_name" 1>&2
+				echo "You can list all discoverable environments with \`conda info --envs\`."
+				return 1
+			fi
+
+			# Ask user if he/she wants to continue with the initialization
+			while true; do
+				read -r -p "You are about to initialize your \"$_conda_env_name\" Conda environment to work with ROS. Are you sure? [y/n] " response
+				case "$response" in
+				[yY][eE][sS] | [yY])
+					_ros_conda_init "$3"
+					break
+					;;
+				[nN][oO] | [nN])
+					echo "Canceling Conda ROS initialization."
+					break
+					;;
+				*)
+					echo "Please enter a valid response."
+					;;
+				esac
+			done
+
+		elif [[ "$2" == "deinit" ]]; then # Deinitialize main environment ros_conda wrapper
+
+			# Get Conda environment name
+			if [[ "$3" == "" ]]; then
+				_conda_env_name="base"
+			else
+				_conda_env_name="$3"
+			fi
+
+			# Check wheter environment that user specified is valid
+			if [[ "$(_ros_conda_is_conda_env $_conda_env_name)" == "false" ]]; then
+				echo "Could not find Conda environment: $_conda_env_name" 1>&2
+				echo "You can list all discoverable environments with \`conda info --envs\`."
+				return 1
+			fi
+
+			# Ask user if he/she wants to continue with the initialization
+			while true; do
+				read -r -p "You are about to deinitialize your \"$_conda_env_name\" Conda environment to work with ROS. Are you sure? [y/n] " response
+				case "$response" in
+				[yY][eE][sS] | [yY])
+					_ros_conda_deinit "$3"
+					break
+					;;
+				[nN][oO] | [nN])
+					echo "Canceling Conda ROS deinitialization."
+					break
+					;;
+				*)
+					echo "Please enter a valid response."
+					;;
+				esac
+			done
+
+		elif [[ "$2" == "-h" || "$2" == "--help" ]]; then
+
+			# Print help menu
+			_ros_conda_usage
+
+		elif [[ "$2" == '-v' || "$2" == "--version" ]]; then
+			echo "v$ROS_CONDA_WRAPPER_VERSION"
+		else
+
+			# Print help menu
+			_ros_conda_usage
+		fi
+	else # Make sure other Conda commands are executed
+		\conda "$@" # Quotes since bash strips the outer quotes
+	fi
+}
+
+function _ros_conda_source_wrapper() {
+	# This function serves a wrapper around
+	# the original Conda command. This alias
+	# is used for Conda v < 4.4.
+
+	if [[ "$1" == "activate" && "$ROS_CONDA_WRAPPER_ACTIVE" == "true"  && "$ROS_CONDA_CONDA_VERSION" < 4.4 ]]; then # Warp Conda deactivate command
+
+		# Get Conda environment name and path
+		if [[ "$#" == 1 ]]; then
+			local _conda_env_name="base"
+			local _conda_env_path="$CONDA_PATH"
+
+			# Make sure the activation Conda command is executed
+			\source "activate" "$_conda_env_name"
+		else
+			local _conda_env_name="$2"
+			local _conda_env_path=${CONDA_PATH}"/envs/"${_conda_env_name}
+
+			# Make sure the activation Conda command is executed
+			\source "$@"
+		fi
+
+		# Apply path modifications if environment exists
+		if [[ "$(_ros_conda_is_conda_env $_conda_env_name)" == "true" ]]; then
+
+			# Fix PATH and PYTHONPATH such that anaconda python is used
+			_ros_conda_path_fix_inside
+			_ros_conda_pythonpath_fix_inside
+		fi
+
+	elif [[ "$1" == "deactivate" && "$ROS_CONDA_WRAPPER_ACTIVE" == "true"  && "$ROS_CONDA_CONDA_VERSION" < 4.4 ]]; then # Warp Conda deactivate command
+
+		# Make sure the deactivation Conda command is executed
+		\source "$@"
+
+		# Fix path such that the system and ROS python are used
+		_ros_conda_path_fix_outside
+		_ros_conda_pythonpath_fix_outside
+
+	elif [[ "$1" == "/opt/ros"*"/setup.bash" && "$ROS_CONDA_WRAPPER_ACTIVE" == "true" ]]; then
+
+		# Create error check variable
+		local had_error=false
+
+		# Execute source command
+		\source "$@" 2>/dev/null || had_error=true
+
+		# Fix paths if source was succesfull 
+		if [[ "$had_error" == false ]]; then
+
+			# Check if your inside or outside an anaconda enviroment
+			if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
+				
+				# Fix PATH and PYTHONPATH
+				_ros_conda_path_fix_inside
+				_ros_conda_pythonpath_fix_inside
+			else
+
+				# Fix PATH and PYTHONPATH
+				_ros_conda_path_fix_outside
+				_ros_conda_pythonpath_fix_outside
+			fi
+		fi
+	elif [[ "$1" == *"devel/setup.bash" && "$ROS_CONDA_WRAPPER_ACTIVE" == "true" ]]; then
+
+		# Execute source command
+		local had_error=false
+		\source "$@" 2>/dev/null || had_error=true
+
+		# Fix paths if source was succesfull 
+		if [[ "$had_error" == false ]]; then
+
+			# Get full path
+			local sourced_path="$1"
+			case sourced_path in
+				/*) 
+					local sourced_path_absolute="$sourced_path"
+					;;
+				./*)
+	
+					local sourced_path_absolute="${PWD}/${sourced_path:2}"
+					;;
+				*) 
+					local sourced_path_absolute="${PWD}/${sourced_path}"
+					;;
+			esac
+		
+			# Check if sourced file was inside catkin_ws
+			if [[ -e "$(dirname $(dirname "${sourced_path_absolute}"))/.catkin_workspace" ]]; then
+
+				# Check if your inside or outside an anaconda enviroment
+				if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
+					
+					# Fix PATH and PYTHONPATH
+					_ros_conda_path_fix_inside
+					_ros_conda_pythonpath_fix_inside
+				else
+
+					# Fix PATH and PYTHONPATH
+					_ros_conda_path_fix_outside
+					_ros_conda_pythonpath_fix_outside
+				fi
+			fi
+		fi
+	else # Make sure other Conda commands are executed
+		\source "$@" # Quotes since bash strips the outer quotes
+	fi
+}
+
+function _ros_conda_dot_source_wrapper() {
+	# This function serves a wrapper around
+	# the dot source command (.) to make sure that
+	# the path and the PYTHONPATH stay fixed when
+	# ROS or a catkin workspace is sourced.
+
+	if [[ $1 == "/opt/ros"*"/setup.bash" && "$ROS_CONDA_WRAPPER_ACTIVE" == "true" ]]; then
+
+		# Create error check variable
+		local had_error=false
+
+		# Execute source command
+		\. "$@" 2>/dev/null || had_error=true
+
+		# Fix paths if source was succesfull 
+		if [[ "$had_error" == false ]]; then
+
+			# Check if your inside or outside an anaconda enviroment
+			if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
+				
+				# Fix PATH and PYTHONPATH
+				_ros_conda_path_fix_inside
+				_ros_conda_pythonpath_fix_inside
+			else
+
+				# Fix PATH and PYTHONPATH
+				_ros_conda_path_fix_outside
+				_ros_conda_pythonpath_fix_outside
+			fi
+		fi
+	elif [[ $1 == *"devel/setup.bash"  && "$ROS_CONDA_WRAPPER_ACTIVE" == "true" ]]; then
+
+		# Execute source command
+		local had_error=false
+		\. "$@" 2>/dev/null || had_error=true
+
+		# Fix paths if source was succesfull 
+		if [[ "$had_error" == false ]]; then
+
+			# Get full path
+			local sourced_path="$1"
+			case sourced_path in
+				/*) 
+					local sourced_path_absolute="$sourced_path"
+					;;
+				./*)
+	
+					local sourced_path_absolute="${PWD}/${sourced_path:2}"
+					;;
+				*) 
+					local sourced_path_absolute="${PWD}/${sourced_path}"
+					;;
+			esac
+		
+			# Check if sourced file was inside catkin_ws
+			if [[ -e "$(dirname $(dirname "${sourced_path_absolute}"))/.catkin_workspace" ]]; then
+
+				# Check if your inside or outside an anaconda enviroment
+				if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
+					
+					# Fix PATH and PYTHONPATH
+					_ros_conda_path_fix_inside
+					_ros_conda_pythonpath_fix_inside
+				else
+
+					# Fix PATH and PYTHONPATH
+					_ros_conda_path_fix_outside
+					_ros_conda_pythonpath_fix_outside
+				fi
+			fi
+		fi
+	else # Make sure other Conda commands are executed
+		\. "$@" # Quotes since bash strips the outer quotes
+	fi
+}
+
+###############################################
+## Setup ros_conda_wrapper aliases ############
+###############################################
+
+# Fix PATH variables create Conda wrapper aliases
+main() {
+
+	# Retreive Conda paths and version
+	paths_array=($(echo $PATH | tr ":" "\n"))
+	for path in "${paths_array[@]}"; do
+
+		# Retreive Conda path
+		if [[ "$path" == "/home/"*"/"*"conda"*"/condabin" ]];then
+			
+			# Retreive CONDA_PATH
+			CONDA_PATH=$(echo $path | sed -e 's/\/condabin//')
+			CONDA_CONDABIN_PATH=${CONDA_PATH}"/condabin"
+			CONDA_BIN_PATH=${CONDA_PATH}"/bin"
+
+		elif [[ "$path" == "/home/"*"/"*"conda"*"/bin" ]]; then
+
+			# Retreive CONDA_PATH
+			CONDA_PATH=$(echo $path | sed -e 's/\/bin//')
+			CONDA_CONDABIN_PATH=${CONDA_PATH}"/condabin"
+			CONDA_BIN_PATH=${CONDA_PATH}"/bin"
+		fi
+
+		# Unset local variables
+		unset paths_array
+	done
+
+	# Check if a valid path was found
+	if [[ -d "$CONDA_PATH" ]]; then
+
+		# Create Conda bin folder array
+		CONDA_PATHS_ARRAY=()
+		CONDA_PATHS_ARRAY+=(${CONDA_CONDABIN_PATH})
+		CONDA_PATHS_ARRAY+=(${CONDA_BIN_PATH})
+
+		# Get Conda base site packages path
+		CONDA_BASE_SITE_PACKAGES_PATH=$(find ${CONDA_PATH}"/lib" -iname site-packages)
+
+		# Check Conda version
+		CONDA_EXE="${CONDA_BIN_PATH}/conda"
+		CONDABIN_EXE="${CONDABIN_EXE}/conda"
+		if [[ -x "$CONDA_EXE" ]]; then
+			ROS_CONDA_CONDA_VERSION="$($CONDA_EXE -V | sed 's/[^0-9.]*//g')"
+		elif [[ -x "$CONDA_EXE" ]]; then
+			ROS_CONDA_CONDA_VERSION="$($CONDABIN_EXE -V | sed 's/[^0-9.]*//g')"
+		fi
+
+		# Check if Conda command is availble
+		if [[ "$(LC_ALL=C type -t conda)" == "function" ]]; then # Check if function conda > v4.5.1
+			ROS_CONDA_WRAPPER_ERROR=false
+		elif [[ "$(LC_ALL=C type -t conda)" == "file" ]]; then # Check if file conda < v4.5.1
+			if [[ -x "$(LC_ALL=C type -p conda)" ]]; then # Check if executable
+				ROS_CONDA_WRAPPER_ERROR=false
+			else
+				# Display anaconda needs to be activated warning
+				echo -e "${ORANGE_CC}WARNING:${NC_CC} It appears that anaconda was initiated but the conda command can not be" \
+				"executed. Please make sure a vallid anaconda path is present in your PATH and that the right permissions are set." 1>&2
+
+				# Set Conda wrapper error variable
+				ROS_CONDA_WRAPPER_ERROR=true
+			fi
+		else
+			# Display anaconda needs to be activated warning
+			echo -e "${ORANGE_CC}WARNING:${NC_CC} It appears that anaconda was not initiated before this wrapper was sourced." \
+			"Please make sure anaconda is initiated in your .bashrc file before running the ros_conda_wrapper." 1>&2
+
+			# Set Conda wrapper error variable
+			ROS_CONDA_WRAPPER_ERROR=true
+		fi
+	else
+
+		# Display anaconda needs to be activated warning
+		echo -e "${ORANGE_CC}WARNING:${NC_CC} It appears that anaconda was not initiated before this wrapper was sourced." \
+		"Please make sure anaconda is initiated in your .bashrc file before running the ros_conda_wrapper." 1>&2
+		
+		# Set Conda wrapper error variable
+		ROS_CONDA_WRAPPER_ERROR=true
+	fi
+
+	# Activate ROS Conda wrapper alias
+	if [[ "$ROS_CONDA_WRAPPER_ERROR" == false ]]; then
+
+		# Load configuration values
+		_ros_conda_load_config_vars
+		
+		# Fix PATH and PYTHONPATH
+		if [[ ! -z "$CONDA_DEFAULT_ENV" && "$ROS_CONDA_WRAPPER_ACTIVE" == "true" ]]; then # Inside environment
+			
+			# Retreive Conda env name
+			_conda_env_name="$CONDA_DEFAULT_ENV"
+
+			# Retreive Conda env path
+			_conda_env_path=${CONDA_PATH}"/envs/"${_conda_env_name}
+
+			# Fix PATH and PYTHONPATH
+			_ros_conda_path_fix_inside
+			_ros_conda_pythonpath_fix_inside
+
+			# Unset variables
+			unset _conda_env_name
+			unset _conda_env_path
+		elif [[ ! -z "$CONDA_DEFAULT_ENV" && "$ROS_CONDA_WRAPPER_ACTIVE" == "true" ]]; then
+
+			# Fix PATH and PYTHONPATH
+			_ros_conda_path_fix_outside
+			_ros_conda_pythonpath_fix_outside
+		fi
+
+		# Set aliases
+		alias conda='_ros_conda_wrapper "$@"'
+		alias source='_ros_conda_source_wrapper "$@"'
+		alias .='_ros_conda_dot_source_wrapper "$@"'
+	fi
+}
+
+# Execute main function
+main "$@"
