@@ -50,7 +50,7 @@ else
     # Remove source command from .bashrc
     sed --follow-symlinks -e "/$start_str/,/$end_str/d" -i.bak ~/.bashrc
     sed --follow-symlinks -e '${/^$/d;}' -i ~/.bashrc # Remove empty line if present
-    echo "ROS Conda wrapper succesfully removed from your .bashrc file."
+    echo "ROS Conda wrapper successfully removed from your .bashrc file."
 fi
 
 # Installer close messages

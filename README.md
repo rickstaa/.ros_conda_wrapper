@@ -1,4 +1,4 @@
-# ros_conda_wrapper
+# ROS Conda wrapper
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3bac6de9531d40e699010223fa5a0ddf)](https://app.codacy.com/app/rickstaa/ros_conda_wrapper?utm_source=github.com&utm_medium=referral&utm_content=rickstaa/ros_conda_wrapper&utm_campaign=Badge_Grade_Dashboard)
 [![Maintained](https://img.shields.io/badge/Maintained%3F-yes-green)](https://github.com/rickstaa/ros_conda_wrapper/pulse)
@@ -58,7 +58,7 @@ command has been added. This command takes the following options:
 -   `activate`: Activates the ROS Conda wrapper.
 -   `deactivate`: Deactivates the ROS Conda wrapper.
 -   `init <CONDA_ENVIRONMENT>`: Initializes a given &lt;CONDA_ENVIRONMENT> to work with ROS.
--   `deinit <CONDA_ENVIRONMENT>`: Deinitailizes a given ROS &lt;CONDA_ENVIRONMENT> to work.
+-   `deinit <CONDA_ENVIRONMENT>`: Deinitializes a given ROS &lt;CONDA_ENVIRONMENT> to work.
 -   `-h, --help`: Displays usage information.
 -   `-h, --help`: ROS Conda wrapper version.
 
