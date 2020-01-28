@@ -11,6 +11,7 @@ ROS_CONDA_WRAPPER_PROGNAME="ROS Conda wrapper"
 ROS_CONDA_WRAPPER_ERROR=false
 ROS_CONDA_WRAPPER_VERSION="1.0.1"
 ROS_CONDA_CONFIG_FILE_NAME="${HOME}/.ros_conda_wrapper_rc_cfg"
+ROS_CONDA_ROS_PYTHONPATH_BACKUP=()
 
 # Bash echo colours
 ORANGE_CC='\033[0;33m'
@@ -123,8 +124,13 @@ function _ros_conda_path_fix_outside() {
 	# This function makes sure the anaconda bin and condabin folders
 	# are further on the path than the /usr/bin, /bin and 
 	# /opt/ros/<ROSVERSION>/bin when outside an anaconda environment.
-	# It further makes sure that the anaconda site packages folder is
-	# removed from the $PYTHONPATH.
+
+	# Create local variables
+	local path_changed=false
+
+	# Split PATH into array and get path length
+	local defaultIFS="$IFS"; IFS=$' \t\n'; local path_array=(${PATH//:/ }); IFS="$defaultIFS"
+	local arr_len="${#path_array[@]}"
 
 	# Make sure the Conda paths are at the end of the PATH variable
 	ros_conda_path_array=(
@@ -132,21 +138,25 @@ function _ros_conda_path_fix_outside() {
 		"${ROS_CONDA_CONDA_PATH}/bin"
 		"${ROS_CONDA_CONDA_PATH}/envs/${CONDA_DEFAULT_ENV}/bin"
 	)
-	local path_changed=false
 	for path in "${ros_conda_path_array[@]}"; do
 		if [[ :${PATH}: == *:"${path}":* ]]  ; then
 
-			# Remove all occurances from PATH variable
+			# Remove all occurrences from PATH variable
 			while [[ ":${PATH}:" == *:"${path}":* ]] ; do 
+
 				# Remove path from PATH variable
-				PATH=${PATH//":${path}:"/":"} # delete any instances in the middle
-				PATH=${PATH/#"${path}:"/} # delete any instance at the beginning
-				PATH=${PATH/%":${path}"/} # delete any instance in the at the end
+				if [[ "${arr_len}" -eq 1 ]]; then # If Path length is 1
+					PATH=${PATH//"${path}"/} # delete instance
+				else
+					PATH=${PATH//":${path}:"/":"} # delete any instances in the middle
+					PATH=${PATH/#"${path}:"/} # delete any instance at the beginning
+					PATH=${PATH/%":${path}"/} # delete any instance in the at the end
+				fi
 			done
 
 			# Add path to the end
 			PATH="${PATH:+${PATH}:}${path}"
-			local path_changed=true
+			path_changed=true
 		fi
 	done
 
@@ -161,28 +171,38 @@ function _ros_conda_path_fix_inside() {
 	# are earlier on the path than the /usr/bin, /bin and 
 	# /opt/ros/<ROSVERSION>/bin when inside an anaconda environment.
 
+	# Create local variables
+	local path_changed=false
+
+	# Split PATH into array and get path length
+	local defaultIFS="$IFS"; IFS=$' \t\n'; local path_array=(${PATH//:/ }); IFS="$defaultIFS"
+	local arr_len="${#path_array[@]}"
+
 	# Make sure the Conda paths are at the beginning of the PATH variable
 	ros_conda_path_array=(
 		"${ROS_CONDA_CONDA_PATH}/condabin"
 		"${ROS_CONDA_CONDA_PATH}/bin"
 		"${ROS_CONDA_CONDA_PATH}/envs/${CONDA_DEFAULT_ENV}/bin"
 	)
-	local path_changed=false
 	for path in "${ros_conda_path_array[@]}"; do
 		if [[ ":${PATH}:" == *:"${path}":* ]]  ; then
 
-			# Remove all occurances from PATH variable
+			# Remove all occurrences from PATH variable
 			while [[ ":${PATH}:" == *:"${path}":* ]] ; do 
 
 				# Remove path from PATH variable
-				PATH=${PATH//":${path}:"/":"} # delete any instances in the middle
-				PATH=${PATH/#"${path}:"/} # delete any instance at the beginning
-				PATH=${PATH/%":${path}"/} # delete any instance in the at the end
+				if [[ "${arr_len}" -eq 1 ]]; then # If Path length is 1
+					PATH=${PATH//"${path}"/} # delete instance
+				else
+					PATH=${PATH//":${path}:"/":"} # delete any instances in the middle
+					PATH=${PATH/#"${path}:"/} # delete any instance at the beginning
+					PATH=${PATH/%":${path}"/} # delete any instance in the at the end
+				fi
 			done
 
-			# Prepent to PATH variable
+			# Prepend to PATH variable
 			PATH="${path}${PATH:+:${PATH}}"
-			local path_changed=true
+			path_changed=true
 		fi
 	done
 
@@ -193,69 +213,66 @@ function _ros_conda_path_fix_inside() {
 }
 
 function _ros_conda_pythonpath_fix_outside() {
-	# This function makes sure the anaconda site packages folder
-	# is removed from the PYTHONPATH when outside an anaconda
-	# environment.
+	# This function makes sure that the ROS python dist-packages path
+	# IS present on the PYTHONPATH when inside a Conda environment.
 
-	# Remove any Conda site-packages folder from the PYTHONPATH
+	# Create local variables
 	local path_changed=false
-	while [[ ":${PYTHONPATH}:" == *:"${ROS_CONDA_CONDA_PATH}"*"site-packages":* ]]; do
 
-		# Remove path from PATH variable
-		PYTHONPATH=${PYTHONPATH//":${ROS_CONDA_CONDA_PATH}"*"site-packages:"/":"} # delete any instances in the middle
-		PYTHONPATH=${PYTHONPATH/#"${ROS_CONDA_CONDA_PATH}"*"site-packages:"/} # delete any instance at the beginning
-		PYTHONPATH=${PYTHONPATH/%":${ROS_CONDA_CONDA_PATH}"*"site-packages"/} # delete any instance in the at the end
-		local path_changed=true
+	# Restore ROS python paths if they are not yet found on the PYTHONPATH
+	for ros_python_path in "${ROS_CONDA_ROS_PYTHONPATH_BACKUP[@]}"; do
+		if [[ -d "$ros_python_path" ]]; then
+			if [[ ":$PYTHONPATH:" != *":${ros_python_path}:"* ]]; then
+				
+				# Prepend to PYTHONPATH variable
+				PYTHONPATH="$ros_python_path${PYTHONPATH:+:${PYTHONPATH}}"
+				path_changed=true
+			fi
+		fi
 	done
 
-	# Export PATH
+	# Export PYTHONPATH
 	if [[ "$path_changed" = true ]]; then
+
+		# Export PYTHONPATH
 		export PYTHONPATH
 	fi
 }
 
 function _ros_conda_pythonpath_fix_inside() {
-	# This function makes sure that the anaconda site packages 
-	# folder comes before the ROS melodic dist-packages folder
-	# when inside a anaconda environment.
+	# This function makes sure that the ROS python dist-packages path
+	# is NOT present on the PYTHONPATH when inside a Conda environment.
 
-	# Get Conda environment name and path
-	if [[ "$CONDA_DEFAULT_ENV" == "base"  || "$CONDA_DEFAULT_ENV" == "root" ]]; then
-		local _conda_site_packages_path="$CONDA_BASE_SITE_PACKAGES_PATH"
-	else
-		local _conda_site_packages_path="$(find ${ROS_CONDA_CONDA_PATH}/envs/${CONDA_DEFAULT_ENV}/lib -iname site-packages 2> /dev/null)"
-	fi
+	# Create local variables
+	local path_changed=false
+	local new_pythonpath_array=()
 
-	# Remove any previously added site-packages folder from the PYTHONPATH
-	while [[ ":${PYTHONPATH}:" == *:"${ROS_CONDA_CONDA_PATH}"*"site-packages":* ]]; do
+	# Split PYTHONPATH or PYTHONPATH into array
+	local defaultIFS="$IFS"; IFS=$' \t\n'; local pythonpath_array=(${PYTHONPATH//:/ }); IFS="$defaultIFS"
 
-		# Remove path from PATH variable
-		PYTHONPATH=${PYTHONPATH//":${ROS_CONDA_CONDA_PATH}"*"site-packages:"/":"} # delete any instances in the middle
-		PYTHONPATH=${PYTHONPATH/#"${ROS_CONDA_CONDA_PATH}"*"site-packages:"/} # delete any instance at the beginning
-		PYTHONPATH=${PYTHONPATH/%":${ROS_CONDA_CONDA_PATH}"*"site-packages"/} # delete any instance in the at the end
-	done
+	# Loop through the paths and retrieve the python paths
+	for path in "${pythonpath_array[@]}"; do
 	
-	# Prepend Conda site-packages folder to the PYTHONPATH
-	if [[ -d "$_conda_site_packages_path" ]]; then
-		if [[ ":$PYTHONPATH:" != *":${_conda_site_packages_path}:"* ]]; then
+		# Test if path is ros path
+		if [[ "$path" == "/opt/ros/"*"/dist-packages" ]]; then
 
-			# Add Conda site-packages folder to PYTHONPATH
-			PYTHONPATH="${_conda_site_packages_path}:${PYTHONPATH}"
+			# Add to ROS_PYTHONPATH_BACKUP array
+			ROS_CONDA_ROS_PYTHONPATH_BACKUP+=("${path}")
+			path_changed=true
 		else
 
-			# Remove any Conda site-packages folder from the PYTHONPATH if it exists
-			while [[ ":$PYTHONPATH:" == *":${_conda_site_packages_path}:"* ]]; do
-				# Remove path from PATH variable
-				PYTHONPATH=${PYTHONPATH//":${_conda_site_packages_path}:"/":"} # delete any instances in the middle
-				PYTHONPATH=${PYTHONPATH/#"${_conda_site_packages_path}:"/} # delete any instance at the beginning
-				PYTHONPATH=${PYTHONPATH/%":${_conda_site_packages_path}"/} # delete any instance in the at the end
-			done
-
-			# Add Conda site-packages folder to PYTHONPATH
-			PYTHONPATH="${_conda_site_packages_path}:${PYTHONPATH}"
+			# Pass to new PYTHONPATH array
+			new_pythonpath_array+=("${path}")
 		fi
+	done
+	
+	# Export PYTHONPATH
+	if [[ "$path_changed" = true ]]; then
 
-		# Export PATH
+		# Convert new PYTHONPATH back to : delimited string
+		PYTHONPATH=$(IFS=$':'; echo "${new_pythonpath_array[*]}") # Converting bash array back into a delimited string
+
+		# Export PYTHONPATH
 		export PYTHONPATH
 	fi
 }
@@ -849,7 +866,7 @@ function _ros_conda_source_wrapper() {
 		local had_error=false
 
 		# Execute source command
-		\source "$@" 2>/dev/null || had_error=true
+		\source "$@" || had_error=true
 
 		# Fix paths if source was successful 
 		if [[ "$had_error" == false ]]; then
@@ -871,40 +888,34 @@ function _ros_conda_source_wrapper() {
 
 		# Execute source command
 		local had_error=false
-		\source "$@" 2>/dev/null || had_error=true
+		\source "$@" || had_error=true
 
 		# Fix paths if source was successful 
 		if [[ "$had_error" == false ]]; then
 
 			# Get full path
 			local sourced_path="$1"
-			case sourced_path in
-				/*) 
-					local sourced_path_absolute="$sourced_path"
-					;;
-				./*)
+			local sourced_path_absolute="$(cd $(dirname ${sourced_path}) 2>/dev/null && pwd -P)/$(basename ${sourced_path})"
+			if [[ -e "$sourced_path_absolute" ]]; then
+
+				# Get main catkin_ws path
+				local catkin_ws_path="$(dirname $(dirname ${sourced_path_absolute}))"
+
+				# Check if sourced file was inside catkin_ws
+				if [[ -e "${catkin_ws_path}/.catkin_workspace" || -e "${catkin_ws_path}/.catkin_tools" ]]; then
 	
-					local sourced_path_absolute="${PWD}/${sourced_path:2}"
-					;;
-				*) 
-					local sourced_path_absolute="${PWD}/${sourced_path}"
-					;;
-			esac
-		
-			# Check if sourced file was inside catkin_ws
-			if [[ -e "$(dirname $(dirname "${sourced_path_absolute}"))/.catkin_workspace" ]]; then
-
-				# Check if your inside or outside an anaconda environment
-				if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
-					
-					# Fix PATH and PYTHONPATH
-					_ros_conda_path_fix_inside
-					_ros_conda_pythonpath_fix_inside
-				else
-
-					# Fix PATH and PYTHONPATH
-					_ros_conda_path_fix_outside
-					_ros_conda_pythonpath_fix_outside
+					# Check if your inside or outside an anaconda environment
+					if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
+						
+						# Fix PATH and PYTHONPATH
+						_ros_conda_path_fix_inside
+						_ros_conda_pythonpath_fix_inside
+					else
+	
+						# Fix PATH and PYTHONPATH
+						_ros_conda_path_fix_outside
+						_ros_conda_pythonpath_fix_outside
+					fi
 				fi
 			fi
 		fi
@@ -938,7 +949,7 @@ function _ros_conda_dot_source_wrapper() {
 		local had_error=false
 
 		# Execute source command
-		\. "$@" 2>/dev/null || had_error=true
+		\. "$@" || had_error=true
 
 		# Fix paths if source was successful 
 		if [[ "$had_error" == false ]]; then
@@ -960,40 +971,34 @@ function _ros_conda_dot_source_wrapper() {
 
 		# Execute source command
 		local had_error=false
-		\. "$@" 2>/dev/null || had_error=true
+		\. "$@" || had_error=true
 
 		# Fix paths if source was successful 
 		if [[ "$had_error" == false ]]; then
 
 			# Get full path
 			local sourced_path="$1"
-			case sourced_path in
-				/*) 
-					local sourced_path_absolute="$sourced_path"
-					;;
-				./*)
+			local sourced_path_absolute="$(cd $(dirname ${sourced_path}) 2>/dev/null && pwd -P)/$(basename ${sourced_path})"
+			if [[ -e "$sourced_path_absolute" ]]; then
+
+				# Get main catkin_ws path
+				local catkin_ws_path="$(dirname $(dirname ${sourced_path_absolute}))"
+
+				# Check if sourced file was inside catkin_ws
+				if [[ -e "${catkin_ws_path}/.catkin_workspace" || -e "${catkin_ws_path}/.catkin_tools" ]]; then
+
+					# Check if your inside or outside an anaconda environment
+					if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
+						
+						# Fix PATH and PYTHONPATH
+						_ros_conda_path_fix_inside
+						_ros_conda_pythonpath_fix_inside
+					else
 	
-					local sourced_path_absolute="${PWD}/${sourced_path:2}"
-					;;
-				*) 
-					local sourced_path_absolute="${PWD}/${sourced_path}"
-					;;
-			esac
-		
-			# Check if sourced file was inside catkin_ws
-			if [[ -e "$(dirname $(dirname "${sourced_path_absolute}"))/.catkin_workspace" ]]; then
-
-				# Check if your inside or outside an anaconda environment
-				if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
-					
-					# Fix PATH and PYTHONPATH
-					_ros_conda_path_fix_inside
-					_ros_conda_pythonpath_fix_inside
-				else
-
-					# Fix PATH and PYTHONPATH
-					_ros_conda_path_fix_outside
-					_ros_conda_pythonpath_fix_outside
+						# Fix PATH and PYTHONPATH
+						_ros_conda_path_fix_outside
+						_ros_conda_pythonpath_fix_outside
+					fi
 				fi
 			fi
 		fi
