@@ -53,7 +53,7 @@ _ros_conda_load_config_vars() {
 		# Read variables from file
 		while IFS="=" read -r key val; do
 			case "$key" in
-				'#'*) 
+				'#'*)
 					;; # Skip comments
 				'ROS_CONDA_WRAPPER_ACTIVE')
 					eval "$key=\"$val\""
@@ -64,7 +64,7 @@ _ros_conda_load_config_vars() {
 		# Parse variables to make sure they are alright
 		case "$ROS_CONDA_WRAPPER_ACTIVE" in
 			"true"|"True"|"TRUE"|"false"|"False"|"FALSE")
-				;;	
+				;;
 			*)
 				# Value was not valid set to default
 				ROS_CONDA_WRAPPER_ACTIVE=true
@@ -76,7 +76,7 @@ _ros_conda_load_config_vars() {
 	else
 
 		# Create file
-		{ 
+		{
 		cat > "$ROS_CONDA_CONFIG_FILE_NAME" <<- EOL
 		# Ros Conda wrapper settings
 		ROS_CONDA_WRAPPER_ACTIVE=true
@@ -98,7 +98,7 @@ _ros_conda_save_config_vars() {
 		ROS_CONDA_WRAPPER_ACTIVE=$ROS_CONDA_WRAPPER_ACTIVE
 		EOL
 	} || {
-		printf "%s:${ORANGE}warning:${NC} Pathmod configuration values could not be saved. %s\n" "$PROGNAME"		
+		printf "%s:${ORANGE}warning:${NC} Pathmod configuration values could not be saved. %s\n" "$PROGNAME"
 	}
 }
 
@@ -122,7 +122,7 @@ _ros_conda_usage() {
 
 function _ros_conda_path_fix_outside() {
 	# This function makes sure the anaconda bin and condabin folders
-	# are further on the path than the /usr/bin, /bin and 
+	# are further on the path than the /usr/bin, /bin and
 	# /opt/ros/<ROSVERSION>/bin when outside an anaconda environment.
 
 	# Create local variables
@@ -142,7 +142,7 @@ function _ros_conda_path_fix_outside() {
 		if [[ :${PATH}: == *:"${path}":* ]]  ; then
 
 			# Remove all occurrences from PATH variable
-			while [[ ":${PATH}:" == *:"${path}":* ]] ; do 
+			while [[ ":${PATH}:" == *:"${path}":* ]] ; do
 
 				# Remove path from PATH variable
 				if [[ "${arr_len}" -eq 1 ]]; then # If Path length is 1
@@ -168,7 +168,7 @@ function _ros_conda_path_fix_outside() {
 
 function _ros_conda_path_fix_inside() {
 	# This function makes sure the anaconda bin and condabin folders
-	# are earlier on the path than the /usr/bin, /bin and 
+	# are earlier on the path than the /usr/bin, /bin and
 	# /opt/ros/<ROSVERSION>/bin when inside an anaconda environment.
 
 	# Create local variables
@@ -177,6 +177,26 @@ function _ros_conda_path_fix_inside() {
 	# Split PATH into array and get path length
 	local defaultIFS="$IFS"; IFS=$' \t\n'; local path_array=(${PATH//:/ }); IFS="$defaultIFS"
 	local arr_len="${#path_array[@]}"
+
+	# # Make sure the Conda bin path is present on the PATH
+	# # NOTE: Done since sourcing a ROS setup.bash removes the Conda bin path
+	# if [[ "$CONDA_DEFAULT_ENV" == "base" || "$CONDA_DEFAULT_ENV" == "root" ]]; then # If in base
+
+	# 	# Retrieve conda bin path
+	# 	local _conda_env_bin_path="${ROS_CONDA_CONDA_PATH}/bin"
+
+	# 	# Add bin path to PATH
+	# 	PATH="${_conda_env_bin_path}${PATH:+:${PATH}}"
+	# elif [[ -z "${CONDA_DEFAULT_ENV}" ]]; then # Not in conda environment
+	# 	return 1 # Return with error code
+	# else # Not in base
+
+	# 	# Retrieve conda bin path
+	# 	local _conda_env_bin_path="${ROS_CONDA_CONDA_PATH}/envs/${CONDA_DEFAULT_ENV}/bin"
+
+	# 	# Add bin path to PATH
+	# 	PATH="${_conda_env_bin_path}${PATH:+:${PATH}}"
+	# fi
 
 	# Make sure the Conda paths are at the beginning of the PATH variable
 	ros_conda_path_array=(
@@ -188,7 +208,7 @@ function _ros_conda_path_fix_inside() {
 		if [[ ":${PATH}:" == *:"${path}":* ]]  ; then
 
 			# Remove all occurrences from PATH variable
-			while [[ ":${PATH}:" == *:"${path}":* ]] ; do 
+			while [[ ":${PATH}:" == *:"${path}":* ]] ; do
 
 				# Remove path from PATH variable
 				if [[ "${arr_len}" -eq 1 ]]; then # If Path length is 1
@@ -223,7 +243,7 @@ function _ros_conda_pythonpath_fix_outside() {
 	for ros_python_path in "${ROS_CONDA_ROS_PYTHONPATH_BACKUP[@]}"; do
 		if [[ -d "$ros_python_path" ]]; then
 			if [[ ":$PYTHONPATH:" != *":${ros_python_path}:"* ]]; then
-				
+
 				# Prepend to PYTHONPATH variable
 				PYTHONPATH="$ros_python_path${PYTHONPATH:+:${PYTHONPATH}}"
 				path_changed=true
@@ -252,7 +272,7 @@ function _ros_conda_pythonpath_fix_inside() {
 
 	# Loop through the paths and retrieve the python paths
 	for path in "${pythonpath_array[@]}"; do
-	
+
 		# Test if path is ros path
 		if [[ "$path" == "/opt/ros/"*"/dist-packages" ]]; then
 
@@ -265,7 +285,7 @@ function _ros_conda_pythonpath_fix_inside() {
 			new_pythonpath_array+=("${path}")
 		fi
 	done
-	
+
 	# Export PYTHONPATH
 	if [[ "$path_changed" = true ]]; then
 
@@ -296,7 +316,7 @@ function _ros_conda_is_conda_env() {
 	fi
 
 	# Return result
-	echo "$retval" 
+	echo "$retval"
 }
 
 function _ros_conda_init() {
@@ -444,7 +464,7 @@ function _ros_conda_init() {
 }
 
 function _ros_conda_deinit() {
-	# This function removes the packages that are needed to enable 
+	# This function removes the packages that are needed to enable
 	# ROS to work from within a Conda environment.
 
 	# Get Conda environment name and path
@@ -593,13 +613,13 @@ function _ros_conda_wrapper() {
 	# This function serves a wrapper around the original Conda command. It is used
 	# for Conda versions > 4.4.
 	if [[ "$1" == "activate" && "$ROS_CONDA_WRAPPER_ACTIVE" == "true" && ("$ROS_CONDA_CONDA_VERSION" > 4.4.0 || "$ROS_CONDA_CONDA_VERSION" = 4.4.0) ]]; then # Warp Conda deactivate command
-	
+
 		# Set error variable
 		local had_error=false
 
 		# Apply path modifications if environment exists
 		_ros_conda_path_fix_inside
-		
+
 		# Make sure the activation Conda command is executed
 		\conda "$@" || had_error=true
 
@@ -685,7 +705,7 @@ function _ros_conda_wrapper() {
 				# Retrieve Conda environment path
 				local _conda_env_name="base"
 			elif [[ "$1" == "root" ]]; then
-			
+
 				# Retrieve Conda environment path
 				local _conda_env_name="root"
 			else
@@ -735,7 +755,7 @@ function _ros_conda_wrapper() {
 						local _conda_env_name="$CONDA_DEFAULT_ENV"
 					fi
 				else
-			
+
 					# Check which conda version is used and assign the right name
 					if [[ ("$ROS_CONDA_CONDA_VERSION" > 4.4.0 || "$ROS_CONDA_CONDA_VERSION" = 4.4.0) ]]; then
 
@@ -814,12 +834,12 @@ function _ros_conda_source_wrapper() {
 
 		# Apply path modifications if environment exists
 		_ros_conda_path_fix_inside
-		
+
 		# Make sure the activation Conda command is executed
 		if [[ "$#" == 1 ]]; then
 
 			# Try to activate environment using root
-			# NOTE: This was done since `\source activate` from within a 
+			# NOTE: This was done since `\source activate` from within a
 			# script gave a strange error.
 			\source activate "root" || had_error=true
 		else
@@ -868,12 +888,12 @@ function _ros_conda_source_wrapper() {
 		# Execute source command
 		\source "$@" || had_error=true
 
-		# Fix paths if source was successful 
+		# Fix paths if source was successful
 		if [[ "$had_error" == false ]]; then
 
 			# Check if your inside or outside an anaconda environment
 			if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
-				
+
 				# Fix PATH and PYTHONPATH
 				_ros_conda_path_fix_inside
 				_ros_conda_pythonpath_fix_inside
@@ -890,7 +910,7 @@ function _ros_conda_source_wrapper() {
 		local had_error=false
 		\source "$@" || had_error=true
 
-		# Fix paths if source was successful 
+		# Fix paths if source was successful
 		if [[ "$had_error" == false ]]; then
 
 			# Get full path
@@ -903,15 +923,15 @@ function _ros_conda_source_wrapper() {
 
 				# Check if sourced file was inside catkin_ws
 				if [[ -e "${catkin_ws_path}/.catkin_workspace" || -e "${catkin_ws_path}/.catkin_tools" ]]; then
-	
+
 					# Check if your inside or outside an anaconda environment
 					if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
-						
+
 						# Fix PATH and PYTHONPATH
 						_ros_conda_path_fix_inside
 						_ros_conda_pythonpath_fix_inside
 					else
-	
+
 						# Fix PATH and PYTHONPATH
 						_ros_conda_path_fix_outside
 						_ros_conda_pythonpath_fix_outside
@@ -925,7 +945,7 @@ function _ros_conda_source_wrapper() {
 		if [[ "$1" == "activate" ]]; then
 			if [[ "$#" == 1 && "$ROS_CONDA_CONDA_VERSION" < 4.4 ]]; then
 				# Try to activate environment using root
-				# NOTE: This was done since `\source activate` from within a 
+				# NOTE: This was done since `\source activate` from within a
 				# script gave a strange error.
 				\source activate "root"
 			else
@@ -951,12 +971,12 @@ function _ros_conda_dot_source_wrapper() {
 		# Execute source command
 		\. "$@" || had_error=true
 
-		# Fix paths if source was successful 
+		# Fix paths if source was successful
 		if [[ "$had_error" == false ]]; then
 
 			# Check if your inside or outside an anaconda environment
 			if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
-				
+
 				# Fix PATH and PYTHONPATH
 				_ros_conda_path_fix_inside
 				_ros_conda_pythonpath_fix_inside
@@ -973,7 +993,7 @@ function _ros_conda_dot_source_wrapper() {
 		local had_error=false
 		\. "$@" || had_error=true
 
-		# Fix paths if source was successful 
+		# Fix paths if source was successful
 		if [[ "$had_error" == false ]]; then
 
 			# Get full path
@@ -989,12 +1009,12 @@ function _ros_conda_dot_source_wrapper() {
 
 					# Check if your inside or outside an anaconda environment
 					if [[ ! -z "$CONDA_DEFAULT_ENV" ]]; then # Inside environment
-						
+
 						# Fix PATH and PYTHONPATH
 						_ros_conda_path_fix_inside
 						_ros_conda_pythonpath_fix_inside
 					else
-	
+
 						# Fix PATH and PYTHONPATH
 						_ros_conda_path_fix_outside
 						_ros_conda_pythonpath_fix_outside
@@ -1020,7 +1040,7 @@ _ros_conda_main() {
 
 		# Retrieve Conda path
 		if [[ "$path" == "/home/"*"/"*"conda"*"/condabin" ]];then
-			
+
 			# Retrieve CONDA_PATH
 			# NOTE: I had to add the ROS_CONDA prefix since
 			# some versions of conda also use the CONDA_PATH variable.
@@ -1029,7 +1049,7 @@ _ros_conda_main() {
 			CONDA_BIN_PATH=${ROS_CONDA_CONDA_PATH}"/bin"
 
 		elif [[ "$path" == "/home/"*"/"*"conda"*"/bin" ]]; then
-			
+
 			# Retrieve CONDA_PATH
 			ROS_CONDA_CONDA_PATH=${path%"/bin"}
 			CONDA_CONDABIN_PATH=${ROS_CONDA_CONDA_PATH}"/condabin"
@@ -1084,7 +1104,7 @@ _ros_conda_main() {
 		# Display anaconda needs to be activated warning
 		echo -e "${ORANGE_CC}WARNING:${NC_CC} It appears that anaconda was not initiated before this wrapper was sourced." \
 		"Please make sure anaconda is initiated in your .bashrc file before running the ros_conda_wrapper." 1>&2
-		
+
 		# Set Conda wrapper error variable
 		ROS_CONDA_WRAPPER_ERROR=true
 	fi
@@ -1094,7 +1114,7 @@ _ros_conda_main() {
 
 		# Load configuration values
 		_ros_conda_load_config_vars
-		
+
 		# Fix PATH and PYTHONPATH
 		if [[ ! -z "$CONDA_DEFAULT_ENV" && "$ROS_CONDA_WRAPPER_ACTIVE" == "true" ]]; then # Inside environment
 
