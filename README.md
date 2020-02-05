@@ -74,7 +74,7 @@ The ROS Conda wrapper adds the following environment variables:
 
 ## How it works
 
-The `.conda_wrapper` script creates an alias which wraps the original `activate` and `deactivate` Conda executable arguments. Following this wrapper modifies the `PATH` and `PYTHONPATH`  such that the right python binaries are used. Additionally, the `conda rosinit <NAME_OF_YOUR_ENVIRONMENT>` command can be used to setup an environment in such a way that ROS works inside the environment. This is done by installing some additional python packages ROS needs.
+The `.conda_wrapper` script creates an alias which wraps the original `activate` and `deactivate` Conda executable arguments. Following this wrapper modifies the `PATH` and `PYTHONPATH`  such that the right python binaries are used. Additionally, the `conda rosinit <NAME_OF_YOUR_ENVIRONMENT>` command can be used to setup an environment in such a way that ROS works inside the environment. This is done by installing some additional python packages ROS needs (see [this blog post](https://medium.com/@wolfv/ros-on-conda-forge-dca6827ac4b6) by [@wolfv](https://github.com/wolfv)).
 
 ## Python 3 compatibility
 
