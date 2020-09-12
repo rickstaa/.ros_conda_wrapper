@@ -82,7 +82,7 @@ _ros_conda_load_config_vars() {
 		ROS_CONDA_WRAPPER_ACTIVE=true
 		EOL
 		} || {
-			printf "%s:${ORANGE}warning:${NC} Configuration file could not be loaded. Default values were used instead. %s\n" "$PROGNAME"		
+			printf "%s:${ORANGE}warning:${NC} Configuration file could not be loaded. Default values were used instead. %s\n" "$PROGNAME"
 		}
 
 		# Use defaults
@@ -109,7 +109,7 @@ _ros_conda_usage() {
 
 	This wrapper solves some problems people have while trying to use ROS Kinetic/Melodic
 	inside a Conda environment.
-	
+
 	OPTIONS:
 	   activate                     Activate the ROS Conda wrapper
 	   deactivate                   Deactivate the ROS Conda wrapper
@@ -661,12 +661,26 @@ function _ros_conda_wrapper() {
 		# ROS Conda wrapper commands
 		if [[ "$2" == "activate" ]]; then
 
+			# Print the result message
+			if $ROS_CONDA_WRAPPER_ACTIVE; then
+				echo "Conda wrapper already active."
+			else
+				echo "Activated conda wrapper. "
+			fi
+
 			# Set ROS_CONDA_WRAPPER_ACTIVE environmental variable
 			export ROS_CONDA_WRAPPER_ACTIVE=true
 
 			# Save values to config file
 			_ros_conda_save_config_vars
 		elif [[ "$2" == "deactivate" ]]; then
+
+			# Print the result message
+			if ! $ROS_CONDA_WRAPPER_ACTIVE; then
+				echo "Conda wrapper already deactivated."
+			else
+				echo "Deactivated conda wrapper. "
+			fi
 
 			# Set ROS_CONDA_WRAPPER_ACTIVE environmental variable
 			export ROS_CONDA_WRAPPER_ACTIVE=false

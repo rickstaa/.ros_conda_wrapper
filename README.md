@@ -14,35 +14,20 @@ This wrapper solves some known problems you might experience while trying to use
 
 ## How to setup
 
-1.  Clone the repository to your user home directory and cd into the `.ros_conda_wrapper` folder.
+1. Clone the repository to your user home directory and cd into the `.ros_conda_wrapper` folder.
 
-    ```bash
-    git clone https://github.com/rickstaa/.ros_conda_wrapper.git
-    cd .ros_conda_wrapper
-    ```
+   ```bash
+   git clone https://github.com/rickstaa/.ros_conda_wrapper.git
+   cd .ros_conda_wrapper
+   ```
 
 ### Automatic installation
 
-2.  Run the `install.sh` script to install the ROS Conda wrapper.
+2. Run the `install.sh` script to install the ROS Conda wrapper.
 
 ### Manual installation
 
-2.  Create a symbolic link to the `ros_conda_wrapper_rc` file:
-
-    ```bash
-    ln -fs "$(pwd)/ros_conda_wrapper_rc" "$(echo $HOME)/.ros_conda_wrapper_rc"
-    ```
-
-3.  Add the following code at the end of your `.bashrc`.
-
-    ```sh
-    # >>> ros_conda_wrapper initialize >>>
-    ## Source Conda wrapper script
-    if [ -f "$HOME/.ros_conda_wrapper_rc" ]; then
-     . "$HOME/.ros_conda_wrapper_rc"
-    fi
-    # <<< ros_conda_wrapper initialize <<
-    ```
+For the manual installation isntructions see [this issue](https://github.com/rickstaa/.ros_conda_wrapper/issues/14).
 
 ## How to uninstall
 
@@ -52,29 +37,51 @@ To uninstall the ROS Conda wrapper run the `uninstall.sh` script before removing
 
 ### ROS Conda wrapper commands
 
-All of the original `conda` commands work as expected. Additionally, a  `--ros-wrapper`
+All of the original `conda` commands work as expected. Additionally, a `--ros-wrapper`
 command has been added. This command takes the following options:
 
--   `activate`: Activates the ROS Conda wrapper.
--   `deactivate`: Deactivates the ROS Conda wrapper.
--   `init <CONDA_ENVIRONMENT>`: Initializes a given &lt;CONDA_ENVIRONMENT> to work with ROS.
--   `deinit <CONDA_ENVIRONMENT>`: Deinitializes a given ROS &lt;CONDA_ENVIRONMENT> to work.
--   `-h, --help`: Displays usage information.
--   `-h, --help`: ROS Conda wrapper version.
+- `activate`: Activates the ROS Conda wrapper.
+- `deactivate`: Deactivates the ROS Conda wrapper.
+- `init <CONDA_ENVIRONMENT>`: Initializes a given &lt;CONDA_ENVIRONMENT> to work with ROS.
+- `deinit <CONDA_ENVIRONMENT>`: Deinitializes a given ROS &lt;CONDA_ENVIRONMENT> to work.
+- `-h, --help`: Displays usage information.
+- `-v, --version`: ROS Conda wrapper version.
 
 :information_source: The `conda --ros-wrapper init` command does not create the environment itself it only performs some actions such that ROS will work inside a python 3 Conda environment.
+
+### Examples
+
+#### Make conda environment ROS compatible
+
+The following commands can be used to make a conda environment ROS compatible:
+
+```bash
+conda create -n example_env python==3.6
+conda --ros-wrapper activate
+conda --ros-wrapper init example_env
+conda activate example_env
+```
+
+#### Transform a ROS Conda Wrapper environment back to a normal Conda environment
+
+The following commands can be used to transform a ROS Conda Wrapper environment back to a normal conda environment:
+
+```bash
+conda --ros-wrapper deinit example_env
+conda --ros-wrapper deactivate
+```
 
 ### ROS Conda wrapper environment variables
 
 The ROS Conda wrapper adds the following environment variables:
 
--   `ROS_CONDA_WRAPPER`: Specifies whether the ROS Conda wrapper is installed.
--   `ROS_CONDA_WRAPPER_ACTIVE`: Specifies whether the ROS Conda wrapper is activated.
--   `ROS_CONDA_WRAPPER_ERROR`: Anaconda is not initiated or installed.
+- `ROS_CONDA_WRAPPER`: Specifies whether the ROS Conda wrapper is installed.
+- `ROS_CONDA_WRAPPER_ACTIVE`: Specifies whether the ROS Conda wrapper is activated.
+- `ROS_CONDA_WRAPPER_ERROR`: Anaconda is not initiated or installed.
 
 ## How it works
 
-The `.conda_wrapper` script creates an alias which wraps the original `activate` and `deactivate` Conda executable arguments. Following this wrapper modifies the `PATH` and `PYTHONPATH`  such that the right python binaries are used. Additionally, the `conda rosinit <NAME_OF_YOUR_ENVIRONMENT>` command can be used to setup an environment in such a way that ROS works inside the environment. This is done by installing some additional python packages ROS needs (see [this blog post](https://medium.com/@wolfv/ros-on-conda-forge-dca6827ac4b6) by [@wolfv](https://github.com/wolfv)).
+The `.conda_wrapper` script creates an alias which wraps the original `activate` and `deactivate` Conda executable arguments. Following this wrapper modifies the `PATH` and `PYTHONPATH` such that the right python binaries are used. Additionally, the `conda rosinit <NAME_OF_YOUR_ENVIRONMENT>` command can be used to setup an environment in such a way that ROS works inside the environment. This is done by installing some additional python packages ROS needs (see [this blog post](https://medium.com/@wolfv/ros-on-conda-forge-dca6827ac4b6) by [@wolfv](https://github.com/wolfv)).
 
 ## Python 3 compatibility
 
