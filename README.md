@@ -14,16 +14,16 @@ This wrapper solves some known problems you might experience while trying to use
 
 ## How to setup
 
-1. Clone the repository to your user home directory and cd into the `.ros_conda_wrapper` folder.
+1.  Clone the repository to your user home directory and cd into the `.ros_conda_wrapper` folder.
 
-   ```bash
-   git clone https://github.com/rickstaa/.ros_conda_wrapper.git
-   cd .ros_conda_wrapper
-   ```
+    ```bash
+    git clone https://github.com/rickstaa/.ros_conda_wrapper.git
+    cd .ros_conda_wrapper
+    ```
 
 ### Automatic installation
 
-2. Run the `install.sh` script to install the ROS Conda wrapper.
+2.  Run the `install.sh` script to install the ROS Conda wrapper.
 
 ### Manual installation
 
@@ -40,12 +40,12 @@ To uninstall the ROS Conda wrapper run the `uninstall.sh` script before removing
 All of the original `conda` commands work as expected. Additionally, a `--ros-wrapper`
 command has been added. This command takes the following options:
 
-- `activate`: Activates the ROS Conda wrapper.
-- `deactivate`: Deactivates the ROS Conda wrapper.
-- `init <CONDA_ENVIRONMENT>`: Initializes a given &lt;CONDA_ENVIRONMENT> to work with ROS.
-- `deinit <CONDA_ENVIRONMENT>`: Deinitializes a given ROS &lt;CONDA_ENVIRONMENT> to work.
-- `-h, --help`: Displays usage information.
-- `-v, --version`: ROS Conda wrapper version.
+-   `activate`: Activates the ROS Conda wrapper.
+-   `deactivate`: Deactivates the ROS Conda wrapper.
+-   `init <CONDA_ENVIRONMENT>`: Initializes a given &lt;CONDA_ENVIRONMENT> to work with ROS.
+-   `deinit <CONDA_ENVIRONMENT>`: Deinitializes a given ROS &lt;CONDA_ENVIRONMENT> to work.
+-   `-h, --help`: Displays usage information.
+-   `-v, --version`: ROS Conda wrapper version.
 
 :information_source: The `conda --ros-wrapper init` command does not create the environment itself it only performs some actions such that ROS will work inside a python 3 Conda environment.
 
@@ -75,9 +75,9 @@ conda --ros-wrapper deactivate
 
 The ROS Conda wrapper adds the following environment variables:
 
-- `ROS_CONDA_WRAPPER`: Specifies whether the ROS Conda wrapper is installed.
-- `ROS_CONDA_WRAPPER_ACTIVE`: Specifies whether the ROS Conda wrapper is activated.
-- `ROS_CONDA_WRAPPER_ERROR`: Anaconda is not initiated or installed.
+-   `ROS_CONDA_WRAPPER`: Specifies whether the ROS Conda wrapper is installed.
+-   `ROS_CONDA_WRAPPER_ACTIVE`: Specifies whether the ROS Conda wrapper is activated.
+-   `ROS_CONDA_WRAPPER_ERROR`: Anaconda is not initiated or installed.
 
 ## How it works
 
