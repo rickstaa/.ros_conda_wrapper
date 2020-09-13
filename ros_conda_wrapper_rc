@@ -819,6 +819,13 @@ function _ros_conda_wrapper() {
 				esac
 			done
 
+		elif [[ "$2" == "-s" || "$2" == "--show-settings" ]]; then
+
+			# Print current settings
+			cat <<- EOM
+				Wrapper active: $ROS_CONDA_WRAPPER_ACTIVE
+				Wrapper error: $ROS_CONDA_WRAPPER_ERROR
+			EOM
 		elif [[ "$2" == "-h" || "$2" == "--help" ]]; then
 
 			# Print help menu

@@ -46,6 +46,7 @@ command has been added. This command takes the following options:
 -   `deinit <CONDA_ENVIRONMENT>`: Deinitializes a given ROS &lt;CONDA_ENVIRONMENT> to work.
 -   `-h, --help`: Displays usage information.
 -   `-v, --version`: ROS Conda wrapper version.
+-   `-s, --show-settings`: Shows the current settings.
 
 :information_source: The `conda --ros-wrapper init` command does not create the environment itself it only performs some actions such that ROS will work inside a python 3 Conda environment.
 
