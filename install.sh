@@ -22,7 +22,7 @@ if [ -L "${WRAPPER_LINK}" ]; then # If symbolic link exists
         echo "ROS Conda wrapper file added to your home directory."
         ln -fs "$(pwd)/${WRAPPER_NAME}" "$(echo "$HOME")/.${WRAPPER_NAME}"
     fi
-elif [ -e ${WRAPPER_LINK} ]; then # If exists but is not a symbolic link
+elif [ -e "${WRAPPER_LINK}" ]; then # If exists but is not a symbolic link
 
     # Add Ros Conda wrapper file to the user home directory
     echo "ROS Conda wrapper file added to your home directory."
