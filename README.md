@@ -100,7 +100,7 @@ Please feel free to open [an issue](https://github.com/rickstaa/.ros_conda_wrapp
 
 ## Acknowledgement
 
-- :rocket: Special thanks to [@StefanFabian](https://github.com/StefanFabian) for creating the [original gist](https://gist.github.com/StefanFabian/17fa715e783cd2be6a32cd5bbb98acd9) on which this wrapper is based.
+-   :rocket: Special thanks to [@StefanFabian](https://github.com/StefanFabian) for creating the [original gist](https://gist.github.com/StefanFabian/17fa715e783cd2be6a32cd5bbb98acd9) on which this wrapper is based.
 
 ## Contributing
 
