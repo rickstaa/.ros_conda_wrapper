@@ -9,7 +9,7 @@
 [![ROS versions](https://img.shields.io/badge/ROS%20versions-Melodic%20%7C%20Kinectic-brightgreen)](https://wiki.ros.org)
 ![Supported shells](https://img.shields.io/badge/Supported%20shells-bash-blue)
 
-This wrapper solves some known problems you might experience while trying to use ROS Kinetic/Melodic inside a Conda environment
+This wrapper solves some known problems/conflicts you might experience while trying to use ROS Kinetic/Melodic inside a Conda environment
 (see [this ROS topic](https://answers.ros.org/question/256886/conflict-anaconda-vs-ros-catking_pkg-not-found/)).
 
 ## How to setup
@@ -97,6 +97,10 @@ ROS kinetic does not support python 3. Further, there are no plans to port the R
 ## Issues
 
 Please feel free to open [an issue](https://github.com/rickstaa/.ros_conda_wrapper/issues) if you run into problems or have suggestions.
+
+## Acknowledgement
+
+- :rocket: Special thanks to [@StefanFabian](https://github.com/StefanFabian) for creating the [original gist](https://gist.github.com/StefanFabian/17fa715e783cd2be6a32cd5bbb98acd9) on which this wrapper is based.
 
 ## Contributing
 
