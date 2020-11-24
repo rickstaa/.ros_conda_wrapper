@@ -1081,6 +1081,15 @@ _ros_conda_main() {
 		unset paths_array
 	done
 
+	# Get conda path conda > v4.5.1
+	if [[ ! -d "$ROS_CONDA_CONDA_PATH" ]]; then
+		if [[ -v CONDA_PYTHON_EXE ]]; then
+			CONDA_BIN_PATH="$(dirname "$CONDA_PYTHON_EXE")"
+			ROS_CONDA_CONDA_PATH="$(dirname "$CONDA_BIN_PATH")"
+			CONDA_CONDABIN_PATH=${ROS_CONDA_CONDA_PATH}"/condabin"
+		fi
+	fi
+
 	# Check if a valid path was found
 	if [[ -d "$ROS_CONDA_CONDA_PATH" ]]; then
 
@@ -1159,4 +1168,5 @@ _ros_conda_main() {
 
 # Execute _ros_conda_main function
 _ros_conda_main "$@"
+# _ros_conda_wrapper "$@"
 unset -f _ros_conda_main 2> /dev/null
