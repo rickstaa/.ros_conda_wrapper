@@ -65,7 +65,6 @@ conda activate example_env
 
 Please note that this command installs the bare minimum of packages required to run ROS inside a Conda environment. If you need additional ROS packages, you can install them using the regular `conda install <PACKAGE_NAME>` command. Check the [Conda package repository](https://anaconda.org/search?q=conda-forge) to see if they are available for CONDA.
 
-
 #### Transform a ROS Conda Wrapper environment back to a typical Conda environment
 
 The following commands can be used to transform a ROS Conda Wrapper environment back to a normal Conda environment:
