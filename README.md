@@ -43,7 +43,7 @@ command has been added. This command takes the following options:
 -   `activate`: Activates the ROS Conda wrapper.
 -   `deactivate`: Deactivates the ROS Conda wrapper.
 -   `init <CONDA_ENVIRONMENT>`: Initializes a given Conda environment to work with ROS.
--   `deinit <CONDA_ENVIRONMENT>`: Deinitializes a given ROS Conda environment to work.
+-   `deinit <CONDA_ENVIRONMENT>`: De-initializes a given ROS Conda environment to work.
 -   `-h, --help`: Displays usage information.
 -   `-v, --version`: ROS Conda wrapper version.
 -   `-s, --show-settings`: Shows the current settings.
