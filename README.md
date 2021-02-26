@@ -9,7 +9,7 @@
 [![ROS versions](https://img.shields.io/badge/ROS%20versions-Kinetic%20%7C%20Melodic%20%7C%20Noetic-brightgreen)](https://wiki.ros.org)
 ![Supported shells](https://img.shields.io/badge/Supported%20shells-bash-blue)
 
-This wrapper solves some known problems/conflicts you might experience while trying to use ROS Kinetic/Melodic inside a Conda environment
+This wrapper solves some known problems/conflicts you might experience while trying to use ROS Kinetic/Melodic/Noetic inside a Conda environment
 (see [this ROS topic](https://answers.ros.org/question/256886/conflict-anaconda-vs-ros-catking_pkg-not-found/)).
 
 ## How to setup
