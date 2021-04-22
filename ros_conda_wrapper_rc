@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/zsh zsh
 ## -- ROS Conda wrapper --
 # This wrapper was added to solve for the conflicts caused by sourcing a ROS setup.bash file inside a
 # Conda environment .
@@ -936,11 +936,11 @@ function _ros_conda_source_wrapper() {
 
 			# Get full path
 			local sourced_path="$1"
-			local sourced_path_absolute="$(cd $(dirname ${sourced_path}) 2>/dev/null && pwd -P)/$(basename ${sourced_path})"
+			local sourced_path_absolute="$(cd ${sourced_path}:A:h 2>/dev/null && pwd -P)/$(basename ${sourced_path})"
 			if [[ -e "$sourced_path_absolute" ]]; then
 
 				# Get main catkin_ws path
-				local catkin_ws_path="$(dirname $(dirname ${sourced_path_absolute}))"
+				local catkin_ws_path="${sourced_path_absolute}:A:h:h"
 
 				# Check if sourced file was inside catkin_ws
 				if [[ -e "${catkin_ws_path}/.catkin_workspace" || -e "${catkin_ws_path}/.catkin_tools" ]]; then
@@ -1019,11 +1019,11 @@ function _ros_conda_dot_source_wrapper() {
 
 			# Get full path
 			local sourced_path="$1"
-			local sourced_path_absolute="$(cd $(dirname ${sourced_path}) 2>/dev/null && pwd -P)/$(basename ${sourced_path})"
+			local sourced_path_absolute="$(cd ${sourced_path}:A:h 2>/dev/null && pwd -P)/$(basename ${sourced_path})"
 			if [[ -e "$sourced_path_absolute" ]]; then
 
 				# Get main catkin_ws path
-				local catkin_ws_path="$(dirname $(dirname ${sourced_path_absolute}))"
+				local catkin_ws_path="$sourced_path_absolute:A:h:h"
 
 				# Check if sourced file was inside catkin_ws
 				if [[ -e "${catkin_ws_path}/.catkin_workspace" || -e "${catkin_ws_path}/.catkin_tools" ]]; then
@@ -1084,8 +1084,8 @@ _ros_conda_main() {
 	# Get conda path conda > v4.5.1
 	if [[ ! -d "$ROS_CONDA_CONDA_PATH" ]]; then
 		if [[ -v CONDA_PYTHON_EXE ]]; then
-			CONDA_BIN_PATH="$(dirname "$CONDA_PYTHON_EXE")"
-			ROS_CONDA_CONDA_PATH="$(dirname "$CONDA_BIN_PATH")"
+			CONDA_BIN_PATH="$CONDA_PYTHON_EXE:A:h"
+			ROS_CONDA_CONDA_PATH="$CONDA_BIN_PATH:A:h"
 			CONDA_CONDABIN_PATH=${ROS_CONDA_CONDA_PATH}"/condabin"
 		fi
 	fi
@@ -1167,6 +1167,6 @@ _ros_conda_main() {
 }
 
 # Execute _ros_conda_main function
-_ros_conda_main "$@"
-# _ros_conda_wrapper "$@"
+# _ros_conda_main "$@"
+_ros_conda_wrapper "$@"
 unset -f _ros_conda_main 2> /dev/null
