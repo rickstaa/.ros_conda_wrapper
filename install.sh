@@ -7,7 +7,7 @@ WRAPPER_NAME="ros_conda_wrapper_rc"
 WRAPPER_LINK=${HOME}"/."${WRAPPER_NAME}
 
 # Check if wrapper does already exists
-exists=$(sed -n "/$start_str/,/$end_str/p" ~/.bashrc) # Check if patern is already present
+exists=$(sed -n "/$start_str/,/$end_str/p" ~/.zshrc) # Check if patern is already present
 
 # Install welcome message
 echo "-- Installing the ROS Conda wrapper --"
@@ -37,22 +37,22 @@ fi
 # Append .ros_conda_wrapper if it does not exist yet
 if [ -z "$exists" ]; then
 
-    # Create backup of .bashrc file
-    echo "A backup will be made to: ${HOME}/.bashrc-ros_conda_wrapper.bak"
-    cp ~/.bashrc ~/.bashrc-ros_conda_wrapper.bak # Create backup
+    # Create backup of .zshrc file
+    echo "A backup will be made to: ${HOME}/.zshrc-ros_conda_wrapper.bak"
+    cp ~/.zshrc ~/.zshrc-ros_conda_wrapper.bak # Create backup
 
-    # Add source command to .bashrc
-    sed --follow-symlinks -e '${/^$/!G;}' -i ~/.bashrc
-    cat >>~/.bashrc <<-EOL
+    # Add source command to .zshrc
+    sed --follow-symlinks -e '${/^$/!G;}' -i ~/.zshrc
+    cat >>~/.zshrc <<-EOL
 $start_str
 if [ -f "$HOME/.ros_conda_wrapper_rc" ]; then
     . "$HOME/.ros_conda_wrapper_rc"
 fi
 $end_str
 EOL
-    echo "ros_conda_wrapper_rc file source command installed to your .bashrc file."
+    echo "ros_conda_wrapper_rc file source command installed to your .zshrc file."
 else
-    echo "ros_conda_wrapper_rc file source command already installed to your .bashrc file."
+    echo "ros_conda_wrapper_rc file source command already installed to your .zshrc file."
 fi
 
 # Installer close messages
