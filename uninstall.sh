@@ -8,7 +8,7 @@ WRAPPER_LINK=${HOME}"/."${WRAPPER_NAME}
 ROS_CONDA_CONFIG_FILE_NAME="${HOME}/.ros_conda_wrapper_rc_cfg"
 
 # Check if wrapper does already exists
-exists=$(sed -n "/$start_str/,/$end_str/p" ~/.bashrc)
+exists=$(sed -n "/$start_str/,/$end_str/p" ~/.zshrc)
 
 # Remove welcome message
 echo "-- Removing the ROS Conda wrapper --"
@@ -42,15 +42,15 @@ else
     echo "ROS Conda wrapper configuration file not present in you home directory."
 fi
 
-# Remove .ros_conda_wrapper from the .bashrc file if it exists
+# Remove .ros_conda_wrapper from the .zshrc file if it exists
 if [ -z "$exists" ]; then
-    echo "ROS Conda wrapper not yet installed on your .bashrc file."
+    echo "ROS Conda wrapper not yet installed on your .zshrc file."
 else
 
-    # Remove source command from .bashrc
-    sed --follow-symlinks -e "/$start_str/,/$end_str/d" -i.bak ~/.bashrc
-    sed --follow-symlinks -e '${/^$/d;}' -i ~/.bashrc # Remove empty line if present
-    echo "ROS Conda wrapper successfully removed from your .bashrc file."
+    # Remove source command from .zshrc
+    sed --follow-symlinks -e "/$start_str/,/$end_str/d" -i.bak ~/.zshrc
+    sed --follow-symlinks -e '${/^$/d;}' -i ~/.zshrc # Remove empty line if present
+    echo "ROS Conda wrapper successfully removed from your .zshrc file."
 fi
 
 # Installer close messages
