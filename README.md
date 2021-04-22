@@ -9,6 +9,11 @@
 [![ROS versions](https://img.shields.io/badge/ROS%20versions-Kinetic%20%7C%20Melodic%20%7C%20Noetic-brightgreen)](https://wiki.ros.org)
 ![Supported shells](https://img.shields.io/badge/Supported%20shells-bash-blue)
 
+
+
+| ⚠️ The conda wrapper is not yet compatible with the zsh shell (see [issue 17](https://github.com/rickstaa/.ros_conda_wrapper/issues/17)). Feel free to create a pull request if you need this feature. |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+
 This wrapper solves some known problems/conflicts you might experience while trying to use ROS Kinetic/Melodic/Noetic inside a Conda environment
 (see [this ROS topic](https://answers.ros.org/question/256886/conflict-anaconda-vs-ros-catking_pkg-not-found/)).
 
