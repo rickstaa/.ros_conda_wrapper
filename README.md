@@ -9,7 +9,7 @@
 [![ROS versions](https://img.shields.io/badge/ROS%20versions-Kinetic%20%7C%20Melodic%20%7C%20Noetic-brightgreen)](https://wiki.ros.org)
 ![Supported shells](https://img.shields.io/badge/Supported%20shells-bash-blue)
 
-| :warning: This repository contains the old (yet to be deprecated) way of using ROS+conda. As of Feb 2021 you are advised to use the [RoboStack ROS Conda packages](https://github.com/RoboStack) instead (see [this blog post](https://medium.com/robostack/cross-platform-conda-packages-for-ros-fa1974fd1de3)). This wrapper is left here as a fallback for use cases that require packages that are not yet available on the [RobotStack](https://github.com/RoboStack) repository. |
+| :warning: This repository contains the old (yet to be deprecated) way of using ROS+conda. As of Feb 2021 you are advised to use the [RoboStack ROS Conda packages](https://github.com/RoboStack) instead (see [this blog post](https://medium.com/robostack/cross-platform-conda-packages-for-ros-fa1974fd1de3)). This wrapper is left here as a fallback for when packages you need are not yet available on the [RobotStack](https://github.com/RoboStack). |
 |------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 This wrapper solves some known problems/conflicts you might experience while trying to use ROS Kinetic/Melodic/Noetic inside a Conda environment
