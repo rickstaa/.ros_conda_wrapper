@@ -10,7 +10,7 @@
 ![Supported shells](https://img.shields.io/badge/Supported%20shells-bash-blue)
 
 | :warning: This repository contains the old (yet to be deprecated) way of using ROS+conda. As of Feb 2021 you are advised to use the [RoboStack ROS Conda packages](https://github.com/RoboStack) instead (see [this blog post](https://medium.com/robostack/cross-platform-conda-packages-for-ros-fa1974fd1de3)). This wrapper is left here as a fallback for when packages you need are not yet available on the [RobotStack](https://github.com/RoboStack). |
-|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 
 This wrapper solves some known problems/conflicts you might experience while trying to use ROS Kinetic/Melodic/Noetic inside a Conda environment
 (see [this ROS topic](https://answers.ros.org/question/256886/conflict-anaconda-vs-ros-catking_pkg-not-found/)).
@@ -113,7 +113,7 @@ Please feel free to open [an issue](https://github.com/rickstaa/.ros_conda_wrapp
 
 ## Contributing
 
-Feel free to open an issue if you have ideas on how to make this GitHub action better or if you want to report a bug! All contributions are welcome. rocket Please consult the [contribution guideliness](contributing.md) for more information.
+Feel free to open an issue if you have ideas on how to make this GitHub action better or if you want to report a bug! All contributions are welcome. rocket Please consult the [contribution guideliness](CONTRIBUTING.md) for more information.
 
 ## License
 
